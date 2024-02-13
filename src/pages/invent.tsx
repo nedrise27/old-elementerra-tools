@@ -237,7 +237,7 @@ export default function InventPage() {
                         </Button>
                     </div>
 
-                    <TableContainer component={Paper}>
+                    <TableContainer component={Paper} sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                         <Table sx={{ minWidth: 600 }}>
                             <TableHead>
                                 <TableRow>
@@ -270,13 +270,19 @@ export default function InventPage() {
                         <div>Loading ...</div>
                     ) : suggestionsLoading === 'loaded' ? (
                         <>
-                            <Toolbar sx={{}} component={Paper}>
+                            <Toolbar
+                                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                                component={Paper}
+                            >
                                 <Typography sx={{}}>
                                     No one tried these recipes yet. Count: {recipesToTryAmount}
                                 </Typography>
                             </Toolbar>
-                            <TableContainer component={Paper}>
-                                <Table sx={{ minWidth: 600 }}>
+                            <TableContainer
+                                component={Paper}
+                                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                            >
+                                <Table sx={{ minWidth: 600, maxWidth: 900 }}>
                                     <TableBody>
                                         {recipesToTry?.map((recipe, i) => (
                                             <RecipeRow key={i} recipe={recipe} />
@@ -284,12 +290,20 @@ export default function InventPage() {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
+
                             <br />
-                            <Toolbar sx={{}} component={Paper}>
+
+                            <Toolbar
+                                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                                component={Paper}
+                            >
                                 <Typography sx={{}}>These recipes where already tried</Typography>
                             </Toolbar>
-                            <TableContainer component={Paper}>
-                                <Table sx={{ minWidth: 600 }}>
+                            <TableContainer
+                                component={Paper}
+                                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                            >
+                                <Table sx={{ minWidth: 600, maxWidth: 900 }}>
                                     <TableBody>
                                         {alreadyTriedRecipes?.map((recipe, i) => (
                                             <RecipeRow key={i} recipe={recipe} />

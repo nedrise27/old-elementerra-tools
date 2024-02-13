@@ -11,36 +11,36 @@ type FeedEvent = {
 };
 
 const MAX_QUEUE_LENGTH = 100;
-const socket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_HOST!);
+// const socket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_HOST!);
 
 export default function FeedPage() {
-    const [messages, setMessages] = useState<Record<string, FeedEvent>>({});
+    // const [messages, setMessages] = useState<Record<string, FeedEvent>>({});
 
-    useEffect(() => {
-        socket.on('connect', function () {
-            console.log('Connected');
-        });
-        socket.on('disconnect', function () {
-            console.log('Disconnected');
-        });
+    // useEffect(() => {
+    //     socket.on('connect', function () {
+    //         console.log('Connected');
+    //     });
+    //     socket.on('disconnect', function () {
+    //         console.log('Disconnected');
+    //     });
 
-        socket.on('events', (message: FeedEvent | FeedEvent[]) => {
-            if (_.isArray(message)) {
-                message.forEach((m) => handleUpdateMessages(m));
-            } else {
-                handleUpdateMessages(message);
-            }
-        });
-    }, []);
+    //     socket.on('events', (message: FeedEvent | FeedEvent[]) => {
+    //         if (_.isArray(message)) {
+    //             message.forEach((m) => handleUpdateMessages(m));
+    //         } else {
+    //             handleUpdateMessages(message);
+    //         }
+    //     });
+    // }, []);
 
-    function handleUpdateMessages(message: FeedEvent) {
-        const hash = `${message.timestamp}${message.playerAddress}${message.event}`;
+    // function handleUpdateMessages(message: FeedEvent) {
+    //     const hash = `${message.timestamp}${message.playerAddress}${message.event}`;
 
-        setMessages((state) => ({
-            ...state,
-            [hash]: message,
-        }));
-    }
+    //     setMessages((state) => ({
+    //         ...state,
+    //         [hash]: message,
+    //     }));
+    // }
 
     return (
         <>
@@ -48,7 +48,8 @@ export default function FeedPage() {
 
             <h2>Feed (WIP)</h2>
 
-            <Paper sx={{ width: '90%', margin: '1rem auto' }}>
+            <p>Will be up again soon. Sorry!</p>
+            {/* <Paper sx={{ width: '90%', margin: '1rem auto' }}>
                 <Box>
                     <nav aria-label="secondary mailbox folders">
                         <List>
@@ -66,7 +67,7 @@ export default function FeedPage() {
                         </List>
                     </nav>
                 </Box>
-            </Paper>
+            </Paper> */}
         </>
     );
 }

@@ -86,14 +86,6 @@ function viewChestsCount(element?: void | Element | undefined) {
     }
 }
 
-type ElementModalCard = {
-    readonly element?: Element | void;
-    readonly extendedRecipes: ExtendedRecipe[];
-    readonly eleSolPrice: number;
-    readonly eleUsdcPrice: number;
-    readonly onClose: () => void;
-};
-
 function viewExtendedRecipeItem(element: Element, amount: number) {
     return (
         <p key={element.address} style={{ whiteSpace: 'nowrap' }}>
@@ -121,7 +113,15 @@ function viewExtendedRecipe(extendedRecipe: ExtendedRecipe, index: number) {
     );
 }
 
-export function ElementModalCard(props: ElementModalCard) {
+type ElementModalCardProps = {
+    readonly element?: Element | void;
+    readonly extendedRecipes: ExtendedRecipe[];
+    readonly eleSolPrice: number;
+    readonly eleUsdcPrice: number;
+    readonly onClose: () => void;
+};
+
+export function ElementModalCard(props: ElementModalCardProps) {
     return (
         <Modal
             open={!_.isNil(props.element)}
