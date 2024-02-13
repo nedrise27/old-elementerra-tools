@@ -173,6 +173,14 @@ export default function InventPage() {
             <Header />
             <br />
 
+            <h1>
+                The data this page relies on is not consistent! Please double check with{' '}
+                <a href="https://ele.tools/recipes" target="_blank" style={{ textDecoration: 'underline' }}>
+                    https://ele.tools/recipes
+                </a>
+                ! Fix is on the way, but no ETA.
+            </h1>
+
             {_.isNil(elementToInvent) ? (
                 <Box sx={{ flexGrow: 1 }}>
                     <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>

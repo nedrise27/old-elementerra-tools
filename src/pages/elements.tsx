@@ -68,8 +68,22 @@ export default function Elments() {
     };
 
     useEffect(() => {
+        const recipes = [];
+        for (const element of elements) {
+            const recipe = [];
+            for (const e of element.recipe) {
+                const extended = elementsRecord[e];
+                if (!_.isNil(extended)) {
+                    recipe.push(extended.name.replaceAll(' ', '').toLowerCase());
+                }
+            }
+            if (!_.isEmpty(recipe)) {
+                recipes.push(`{${recipe.join(',')}}`);
+            }
+        }
+        console.log(recipes);
         setElementsDisplay(_.cloneDeep(elements));
-    }, [elements]);
+    }, [elements, elementsRecord]);
 
     useEffect(() => {
         const elements = Object.values(elementsRecord);
