@@ -175,7 +175,12 @@ export default function InventPage() {
 
             <h1>
                 The data this page relies on is not consistent! Please double check with{' '}
-                <a href="https://ele.tools/recipes" target="_blank" style={{ textDecoration: 'underline' }}>
+                <a
+                    href="https://ele.tools/recipes"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ textDecoration: 'underline' }}
+                >
                     https://ele.tools/recipes
                 </a>
                 ! Fix is on the way, but no ETA.
