@@ -1,17 +1,17 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { Connection } from '@solana/web3.js';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
+import { useConnection } from '@solana/wallet-adapter-react';
 import { Header } from '../../app/components/Header';
 import { useEleSolPriceStore, useRabbitPriceStore } from '../../app/stores/prices';
 import { RabbitLevelInfo, useRabbitLevelInfoStore } from '../../app/stores/rabbitLevels';
 import { useElementsInfoStore } from '../../app/stores/shopElements';
 import { calculatePrice } from '../../lib/utils/price';
 
-const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT!);
-
 export default function RoiCrystalsPage() {
+    const { connection } = useConnection();
+
     const [loading, setLoading] = useState(true);
 
     const eleSolPrice = useEleSolPriceStore((state) => state.price);

@@ -14,15 +14,13 @@ import {
     Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { useConnection } from '@solana/wallet-adapter-react';
 import _ from 'lodash';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Header } from '../app/components/Header';
 import { Element, useElementsInfoStore } from '../app/stores/shopElements';
 import styles from '../styles/Invent.module.css';
-
-const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || clusterApiUrl('mainnet-beta'));
 
 export type ElementToGuess = {
     element: Element;
@@ -31,6 +29,8 @@ export type ElementToGuess = {
 };
 
 export default function InventPage() {
+    const { connection } = useConnection();
+
     const elements = useElementsInfoStore((state) => state.elements);
     const refetchElements = useElementsInfoStore((state) => state.fetch);
 
@@ -173,18 +173,12 @@ export default function InventPage() {
             <Header />
             <br />
 
-            <h1>
-                The data this page relies on is not consistent! Please double check with{' '}
-                <a
-                    href="https://ele.tools/recipes"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ textDecoration: 'underline' }}
-                >
-                    https://ele.tools/recipes
-                </a>
-                ! Fix is on the way, but no ETA.
-            </h1>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <h3 style={{ color: 'orange' }}>
+                    There is still the possibility that we do not have every tried attempt. All attempts that are shown
+                    as already tried are consistent though.
+                </h3>
+            </div>
 
             {_.isNil(elementToInvent) ? (
                 <Box sx={{ flexGrow: 1 }}>

@@ -16,8 +16,7 @@ import {
     TableRow,
     TextField,
 } from '@mui/material';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { Connection } from '@solana/web3.js';
+import { useConnection } from '@solana/wallet-adapter-react';
 import { DAS, Helius } from 'helius-sdk';
 import _ from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
@@ -39,15 +38,12 @@ export type Stakable = {
     elePerHour: number;
 };
 
-const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT!);
-const metaplex = Metaplex.make(connection);
-const helius = new Helius(process.env.NEXT_PUBLIC_HELIUS_API_KEY!);
-
 type LoadinState = 'initial' | 'loading' | 'loaded';
 
-// const Home: NextPage = () => {
 export default function Home() {
-    const wallet = useWallet();
+    const { connection } = useConnection();
+    const metaplex = Metaplex.make(connection);
+    const helius = new Helius(process.env.NEXT_PUBLIC_HELIUS_API_KEY!);
 
     const [walletAddresses, setWalletAddresses] = useState<string[]>([]);
 
@@ -91,17 +87,42 @@ export default function Home() {
         setLoadingState('loading');
         if (!_.isEmpty(walletAddresses)) {
             try {
-                const assetResponses = await Promise.all(
-                    walletAddresses.map((ownerAddress) =>
-                        helius.rpc.getAssetsByOwner({
-                            ownerAddress,
-                            page: 1,
-                            limit: 1000,
-                        })
-                    )
-                );
+                let assets: DAS.GetAssetResponse[] = [];
 
-                const assets = assetResponses.flatMap((res) => res.items);
+                for (const ownerAddress of walletAddresses) {
+                    const limit = 1000;
+                    let page = 1;
+                    let sanityCheck = 0;
+                    let fetched = 0;
+
+                    while (true) {
+                        const res = await helius.rpc.getAssetsByOwner({
+                            ownerAddress,
+                            page,
+                            limit,
+                            displayOptions: {
+                                showGrandTotal: true,
+                            },
+                        });
+                        assets = [...assets, ...res.items];
+                        fetched += limit;
+
+                        if (_.isNil(res.grand_total) || !_.isNumber(res.grand_total)) {
+                            break;
+                        }
+                        if (fetched > res.grand_total) {
+                            break;
+                        }
+
+                        if (sanityCheck > 20) {
+                            break;
+                        }
+                        sanityCheck++;
+                        page++;
+                    }
+                }
+
+                console.log(assets.length);
 
                 const unburnt = assets.filter((item) => !item.burnt);
 
@@ -196,18 +217,6 @@ export default function Home() {
         refreshEleUsdcPrice();
     }, [refreshEleSolPrice, refreshEleUsdcPrice]);
 
-    useEffect(() => {
-        if (wallet.connected) {
-            const walletAddress = wallet.publicKey?.toString();
-            if (walletAddress) {
-                setWalletAddresses([]);
-                addWalletAddress(0, walletAddress);
-            }
-        } else {
-            setWalletAddresses([]);
-        }
-    }, [wallet.publicKey, wallet.connected, wallet.disconnecting]);
-
     function resetState() {
         setRabbits([]);
         setRabbitsElePerHour(0);
@@ -264,7 +273,6 @@ export default function Home() {
             <Head>
                 <title>Elementerra tools</title>
                 <meta name="description" content="Tools for Elementerra.io players, created by @nedrise." />
-                <link rel="icon" href="/favicon.ico" />
             </Head>
 
             <div className={styles.container}>

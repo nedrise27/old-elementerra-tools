@@ -26,13 +26,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     const network = WalletAdapterNetwork.Devnet;
 
     // You can also provide a custom RPC endpoint
-    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-    const wallets = useMemo(
-        () => [new SolflareWalletAdapter(), new PhantomWalletAdapter()],
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [network]
-    );
+    const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || clusterApiUrl('mainnet-beta');
 
     const darkTheme = createTheme({
         palette: {
@@ -43,11 +37,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     return (
         <ThemeProvider theme={darkTheme}>
             <ConnectionProvider endpoint={endpoint}>
-                <WalletProvider wallets={wallets} autoConnect>
-                    <WalletModalProvider>
-                        <Component {...pageProps} />
-                    </WalletModalProvider>
-                </WalletProvider>
+                <Component {...pageProps} />
             </ConnectionProvider>
         </ThemeProvider>
     );

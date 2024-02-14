@@ -1,4 +1,3 @@
-import { Metaplex } from '@metaplex-foundation/js';
 import {
     Box,
     Checkbox,
@@ -12,18 +11,15 @@ import {
     TextField,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
-import { Connection, clusterApiUrl } from '@solana/web3.js';
-import { Helius } from 'helius-sdk';
 import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { stringSimilarity } from 'string-similarity-js';
 
+import { useConnection } from '@solana/wallet-adapter-react';
 import { ElementCard, ElementModalCard } from '../app/components/ElementCard';
 import { Header } from '../app/components/Header';
 import { Element, useElementsInfoStore } from '../app/stores/shopElements';
 import { getExtendedRecipe } from '../lib/utils';
-
-const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || clusterApiUrl('mainnet-beta'));
 
 export type ExtendedRecipe = Record<string, { element: Element; amount: number }>;
 
@@ -34,6 +30,8 @@ type Filter = 'all' | 'invented' | 'not invented' | 'chests available' | 'no che
 type Props = {};
 
 export default function Elments() {
+    const { connection } = useConnection();
+
     const elements = useElementsInfoStore((state) => state.elements);
     const elementsRecord = useElementsInfoStore((state) => state.elementsRecord);
     const refetchElements = useElementsInfoStore((state) => state.fetch);

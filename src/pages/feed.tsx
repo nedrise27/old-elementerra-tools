@@ -1,7 +1,7 @@
-import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Paper } from '@mui/material';
+import { Box, List, ListItem, ListItemText, Paper } from '@mui/material';
 import _ from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
-import io, { Socket } from 'socket.io-client';
+import { useEffect, useState } from 'react';
+import io from 'socket.io-client';
 import { Header } from '../app/components/Header';
 
 type FeedEvent = {
@@ -10,37 +10,36 @@ type FeedEvent = {
     event: string;
 };
 
-const MAX_QUEUE_LENGTH = 100;
-// const socket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_HOST!);
+const socket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_HOST!, { transports: ['websocket', 'polling'] });
 
 export default function FeedPage() {
-    // const [messages, setMessages] = useState<Record<string, FeedEvent>>({});
+    const [messages, setMessages] = useState<Record<string, FeedEvent>>({});
 
-    // useEffect(() => {
-    //     socket.on('connect', function () {
-    //         console.log('Connected');
-    //     });
-    //     socket.on('disconnect', function () {
-    //         console.log('Disconnected');
-    //     });
+    useEffect(() => {
+        socket.on('connect', function () {
+            console.log('Connected');
+        });
+        socket.on('disconnect', function () {
+            console.log('Disconnected');
+        });
 
-    //     socket.on('events', (message: FeedEvent | FeedEvent[]) => {
-    //         if (_.isArray(message)) {
-    //             message.forEach((m) => handleUpdateMessages(m));
-    //         } else {
-    //             handleUpdateMessages(message);
-    //         }
-    //     });
-    // }, []);
+        socket.on('events', (message: FeedEvent | FeedEvent[]) => {
+            if (_.isArray(message)) {
+                message.forEach((m) => handleUpdateMessages(m));
+            } else {
+                handleUpdateMessages(message);
+            }
+        });
+    }, []);
 
-    // function handleUpdateMessages(message: FeedEvent) {
-    //     const hash = `${message.timestamp}${message.playerAddress}${message.event}`;
+    function handleUpdateMessages(message: FeedEvent) {
+        const hash = `${message.timestamp}${message.playerAddress}${message.event}`;
 
-    //     setMessages((state) => ({
-    //         ...state,
-    //         [hash]: message,
-    //     }));
-    // }
+        setMessages((state) => ({
+            ...state,
+            [hash]: message,
+        }));
+    }
 
     return (
         <>
@@ -48,8 +47,7 @@ export default function FeedPage() {
 
             <h2>Feed (WIP)</h2>
 
-            <p>Will be up again soon. Sorry!</p>
-            {/* <Paper sx={{ width: '90%', margin: '1rem auto' }}>
+            <Paper sx={{ width: '90%', margin: '1rem auto' }}>
                 <Box>
                     <nav aria-label="secondary mailbox folders">
                         <List>
@@ -58,7 +56,9 @@ export default function FeedPage() {
                             ) : (
                                 _.orderBy(Object.values(messages), 'timestamp', 'desc').map((message, i) => (
                                     <ListItem key={i}>
-                                        <ListItemText>{new Date(message.timestamp * 1000).toISOString()}</ListItemText>
+                                        <ListItemText>
+                                            {new Date(message.timestamp * 1000).toLocaleString()}
+                                        </ListItemText>
                                         <ListItemText>{message.playerAddress}</ListItemText>
                                         <ListItemText>{message.event}</ListItemText>
                                     </ListItem>
@@ -67,7 +67,7 @@ export default function FeedPage() {
                         </List>
                     </nav>
                 </Box>
-            </Paper> */}
+            </Paper>
         </>
     );
 }
