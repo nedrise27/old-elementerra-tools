@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
 import { useChestPricesStore } from '../app/stores/prices';
+import { normalize } from '../lib/utils';
 
 type ElementsStats = {
     elementName: string;
@@ -86,6 +87,9 @@ export default function CasingChests() {
 
             const stats: ElementsStats[] = [];
 
+            let minCostEffectiveness: number | null = null;
+            let maxCostEffectiveness: number | null = null;
+
             for (const e of sortedElements) {
                 if (e.chestsAvailable) {
                     const chests: Record<number, number> = {};
@@ -94,6 +98,13 @@ export default function CasingChests() {
                     const cost = e.price!;
                     const returnValue = getReturnValue(chests);
                     const costEffectiveness = getCostEffectiveness(cost, returnValue);
+
+                    if (_.isNil(minCostEffectiveness) || costEffectiveness < minCostEffectiveness) {
+                        minCostEffectiveness = costEffectiveness;
+                    }
+                    if (_.isNil(maxCostEffectiveness) || costEffectiveness > maxCostEffectiveness) {
+                        maxCostEffectiveness = costEffectiveness;
+                    }
 
                     stats.push({
                         elementName: e.name,
@@ -105,6 +116,15 @@ export default function CasingChests() {
                     });
                 }
             }
+
+            stats.forEach(
+                (stat) =>
+                    (stat.costEffectiveness = normalize(
+                        stat.costEffectiveness,
+                        maxCostEffectiveness!,
+                        minCostEffectiveness!
+                    ))
+            );
 
             setElementsStats(stats);
         }
@@ -268,6 +288,15 @@ export default function CasingChests() {
 
             <br />
 
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <p>
+                    <strong style={{ color: 'orange' }}>Profitability Points</strong> are calculated by{' '}
+                    <strong style={{ color: 'orange' }}>Value / Cost</strong> and then normalized
+                </p>
+            </div>
+
+            <br />
+
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 600 }} aria-label="ELE production table">
                     <TableHead>
@@ -282,10 +311,7 @@ export default function CasingChests() {
                                     color={orderByCostEffectiveness === 'none' ? 'primary' : 'success'}
                                     onClick={handleToggleOrderByCostEffectiveness}
                                 >
-                                    {viewOrderByArrow(
-                                        'Cost Effectiveness => [ Value / Cost ]',
-                                        orderByCostEffectiveness
-                                    )}
+                                    {viewOrderByArrow('Profitability Points', orderByCostEffectiveness)}
                                 </Button>
                             </TableCell>
                         </TableRow>
@@ -312,7 +338,7 @@ function ViewElementsStatsRow(props: ViewElementsStatsRowProps) {
             <TableCell>{viewChests(props.stats.chests)}</TableCell>
             <TableCell>{props.stats.returnValue}</TableCell>
             <TableCell>{props.stats.cost}</TableCell>
-            <TableCell>{props.stats.costEffectiveness}</TableCell>
+            <TableCell>{(props.stats.costEffectiveness * 100).toFixed(0)}</TableCell>
         </TableRow>
     );
 }
