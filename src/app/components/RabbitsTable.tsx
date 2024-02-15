@@ -1,6 +1,6 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { Stakable } from '../../pages';
 import { calculatePrice } from '../../lib/utils';
+import { Stakable } from '../stores/assets';
 
 type Props = {
     readonly rabbits: Stakable[];

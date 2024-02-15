@@ -1,5 +1,5 @@
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
-import { Stakable } from '../../pages';
+import { Stakable } from '../stores/assets';
 import _ from 'lodash';
 import { calculatePrice } from '../../lib/utils';
 

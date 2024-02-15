@@ -27,8 +27,6 @@ type Ordering = 'tier:asc' | 'tier:desc' | 'price:asc' | 'price:desc' | 'name:as
 
 type Filter = 'all' | 'invented' | 'not invented' | 'chests available' | 'no chests available';
 
-type Props = {};
-
 export default function Elments() {
     const { connection } = useConnection();
 
