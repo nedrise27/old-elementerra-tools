@@ -41,17 +41,17 @@ type Order = 'none' | 'asc' | 'desc';
 
 type ChestWeight = {
     chestTier: string;
-    weight: number;
+    weight: string;
 };
 
 const defaultChestsWeights: ChestWeight[] = [
-    { chestTier: '1', weight: 1 },
-    { chestTier: '2', weight: 2 },
-    { chestTier: '3', weight: 3 },
-    { chestTier: '4', weight: 4 },
-    { chestTier: '5', weight: 5 },
-    { chestTier: '6', weight: 6 },
-    { chestTier: '7', weight: 7 },
+    { chestTier: '1', weight: '1' },
+    { chestTier: '2', weight: '2' },
+    { chestTier: '3', weight: '3' },
+    { chestTier: '4', weight: '4' },
+    { chestTier: '5', weight: '5' },
+    { chestTier: '6', weight: '6' },
+    { chestTier: '7', weight: '7' },
 ];
 
 export default function CasingChests() {
@@ -144,8 +144,8 @@ export default function CasingChests() {
     function getReturnValue(chests: Record<number, number>): number {
         return _.sum(
             Object.entries(chests).map(([tier, count]) => {
-                const weight = chestsWeights.find((cw) => cw.chestTier === tier)?.weight || 0;
-                return weight * count;
+                const weight = chestsWeights.find((cw) => cw.chestTier === tier)?.weight!;
+                return parseFloat(weight) * count;
             })
         );
     }
@@ -214,15 +214,16 @@ export default function CasingChests() {
 
     function handleChestWeightChange(chestWeight: ChestWeight, value: string) {
         resetOrders();
-
         const newWeights = [];
         for (const c of chestsWeights) {
             if (c.chestTier !== chestWeight.chestTier) {
                 newWeights.push(c);
             } else {
-                newWeights.push({ chestTier: chestWeight.chestTier, weight: parseInt(value, 10) });
+                const weight = parseFloat(value);
+                newWeights.push({ chestTier: chestWeight.chestTier, weight: value });
             }
         }
+
         setChestsWeights(newWeights);
     }
 
@@ -237,7 +238,7 @@ export default function CasingChests() {
 
         const newChestsWeights = [];
         for (const [chestTier, weight] of Object.entries(chestPrices)) {
-            newChestsWeights.push({ chestTier, weight: weight || 0 });
+            newChestsWeights.push({ chestTier, weight: weight ? weight.toString() : '0' });
         }
         if (!_.isEmpty(newChestsWeights)) {
             setChestsWeights(newChestsWeights);
@@ -275,7 +276,7 @@ export default function CasingChests() {
                             placeholder={'Tier: ' + chestWeight.chestTier}
                             label={'Tier: ' + chestWeight.chestTier}
                             sx={{ maxWidth: 100 }}
-                            type="number"
+                            type="text"
                             value={chestWeight.weight}
                             onChange={(event) => handleChestWeightChange(chestWeight, event.target.value)}
                         />
