@@ -242,7 +242,7 @@ export default function CasingChests() {
             <h2>Chasing Chests (WIP)</h2>
 
             <Box sx={{ padding: '1rem 4rem', gap: '1rem', display: 'flex', alignItems: 'center' }}>
-                <Typography component={'h5'}>Chests Weights: </Typography>
+                <Typography component={'h5'}>Chests Values: </Typography>
 
                 {_.orderBy(chestsWeights, ['chestTier', 'asc']).map((chestWeight) => (
                     <FormControl key={chestWeight.chestTier}>
@@ -258,11 +258,11 @@ export default function CasingChests() {
                 ))}
 
                 <Button variant="outlined" onClick={handleChestWeightDefault}>
-                    Default Chest Weights
+                    Default Chest Values
                 </Button>
 
                 <Button variant="outlined" onClick={handleChestWeightPrice}>
-                    Chest Weights by floor price
+                    Chest Values by floor price
                 </Button>
             </Box>
 
@@ -274,7 +274,7 @@ export default function CasingChests() {
                         <TableRow>
                             <TableCell>Element</TableCell>
                             <TableCell>Chests</TableCell>
-                            <TableCell>Return Value</TableCell>
+                            <TableCell>Value</TableCell>
                             <TableCell>Cost</TableCell>
                             <TableCell>
                                 <Button
@@ -282,7 +282,10 @@ export default function CasingChests() {
                                     color={orderByCostEffectiveness === 'none' ? 'primary' : 'success'}
                                     onClick={handleToggleOrderByCostEffectiveness}
                                 >
-                                    {viewOrderByArrow('Cost Effectiveness', orderByCostEffectiveness)}
+                                    {viewOrderByArrow(
+                                        'Cost Effectiveness => [ Value / Cost ]',
+                                        orderByCostEffectiveness
+                                    )}
                                 </Button>
                             </TableCell>
                         </TableRow>
