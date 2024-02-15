@@ -73,7 +73,7 @@ export default function CasingChests() {
 
     const [orderByCostEffectiveness, setOrderByCostEffectiveness] = useState<Order>('none');
 
-    const [loaded, setLoaded] = useState(true);
+    const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
         if (elements.length > 0) {
@@ -138,6 +138,7 @@ export default function CasingChests() {
 
     useEffect(() => {
         fetchElements(connection);
+        fetchChestPrices();
     }, [connection]);
 
     function getReturnValue(chests: Record<number, number>): number {
@@ -231,14 +232,18 @@ export default function CasingChests() {
     }
 
     async function handleChestWeightPrice() {
+        setLoaded(false);
         resetOrders();
-        await fetchChestPrices();
-        console.log(chestPrices);
+
         const newChestsWeights = [];
         for (const [chestTier, weight] of Object.entries(chestPrices)) {
             newChestsWeights.push({ chestTier, weight: weight || 0 });
         }
-        setChestsWeights(newChestsWeights);
+        if (!_.isEmpty(newChestsWeights)) {
+            setChestsWeights(newChestsWeights);
+        }
+
+        setLoaded(true);
     }
 
     function handleToggleOrderByCostEffectiveness() {
@@ -281,7 +286,7 @@ export default function CasingChests() {
                     Default Chest Values
                 </Button>
 
-                <Button variant="outlined" onClick={handleChestWeightPrice}>
+                <Button variant="outlined" onClick={async () => await handleChestWeightPrice()}>
                     Chest Values by floor price
                 </Button>
             </Box>
