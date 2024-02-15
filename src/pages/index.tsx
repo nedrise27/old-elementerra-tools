@@ -25,6 +25,7 @@ import { RabbitsTable } from '../app/components/RabbitsTable';
 import { useAssetStore } from '../app/stores/assets';
 import { useEleSolPriceStore, useEleUsdcPriceStore } from '../app/stores/prices';
 import styles from '../styles/Home.module.css';
+import { WalletInput } from '../app/components/WalletInput';
 
 export default function Home() {
     const wallets = useAssetStore((state) => state.wallets);
@@ -88,41 +89,41 @@ export default function Home() {
             </Head>
 
             <div className={styles.container}>
-                <Header />
-
                 <main className={styles.main}>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            padding: '1rem 0',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <WalletInput />
+
+                        <FormControl sx={{ minWidth: '300px' }}>
+                            <InputLabel id="eleProductionTimeframeLabel">Timeframe</InputLabel>
+
+                            <Select
+                                labelId="eleProductionTimeframeLabel"
+                                aria-label="Timeframe"
+                                id="eleProductionTimeframe"
+                                value={timeframe}
+                                label="Timeframe"
+                                onChange={handleTimeframeChange}
+                            >
+                                <MenuItem value={1} selected>
+                                    One Hour
+                                </MenuItem>
+                                <MenuItem value={24}>One Day</MenuItem>
+                                <MenuItem value={168}>7 Days</MenuItem>
+                                <MenuItem value={720}>30 Days</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+
                     {assetsLoadingState === 'initial' || assetsLoadingState === 'loaded' ? (
                         <>
-                            <Box
-                                sx={{
-                                    bgcolor: 'background.paper',
-                                    boxShadow: 1,
-                                    borderRadius: 1,
-                                    p: 2,
-                                    width: '100%',
-                                    maxWidth: '1080px',
-                                }}
-                            >
-                                <FormControl fullWidth>
-                                    <InputLabel id="eleProductionTimeframeLabel">Timeframe</InputLabel>
-                                    <Select
-                                        labelId="eleProductionTimeframeLabel"
-                                        aria-label="Timeframe"
-                                        id="eleProductionTimeframe"
-                                        value={timeframe}
-                                        label="Timeframe"
-                                        onChange={handleTimeframeChange}
-                                    >
-                                        <MenuItem value={1} selected>
-                                            One Hour
-                                        </MenuItem>
-                                        <MenuItem value={24}>One Day</MenuItem>
-                                        <MenuItem value={168}>7 Days</MenuItem>
-                                        <MenuItem value={720}>30 Days</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Box>
-
                             <TableContainer component={Paper}>
                                 <Table sx={{ minWidth: 600 }} aria-label="ELE production table">
                                     <TableHead>
@@ -194,17 +195,6 @@ export default function Home() {
                     )}
                     <br />
                 </main>
-
-                <AppBar position="static">
-                    <div className={styles.footer}>
-                        <span>
-                            Made by{' '}
-                            <a href="https://github.com/nedrise27?tab=repositories" target="_blank" rel="noreferrer">
-                                nedrise
-                            </a>
-                        </span>
-                    </div>
-                </AppBar>
             </div>
         </>
     );

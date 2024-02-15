@@ -1,10 +1,12 @@
 .Navigation {
+    width: 100%;
     min-height: 32px;
     padding: 1rem 2rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
     gap: 1rem;
+    flex: 1;
 }
 
 .Navigation a {
@@ -15,9 +17,6 @@
 
 .Navigation a:hover {
     background-color: rgb(63, 63, 63);
-}
-
-.Note {
 }
 
 .NavItems {
@@ -32,9 +31,6 @@
     padding: 0 2rem 1rem 2rem;
     display: flex;
     justify-content: space-between;
-}
-
-.globalStats {
 }
 
 .walletButtons {

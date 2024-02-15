@@ -27,7 +27,6 @@ export default function RoiCrystalsPage() {
 
     return (
         <>
-            <Header />
             {loading ? (
                 <h3>Loading ...</h3>
             ) : (

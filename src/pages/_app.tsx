@@ -1,11 +1,10 @@
 import { ThemeProvider, createTheme } from '@mui/material';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { ConnectionProvider } from '@solana/wallet-adapter-react';
 import { clusterApiUrl } from '@solana/web3.js';
 import type { AppProps } from 'next/app';
-import { useMemo } from 'react';
+import { Footer } from '../app/components/Footer';
+import { Header } from '../app/components/Header';
 
 // Use require instead of import since order matters
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -37,7 +36,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     return (
         <ThemeProvider theme={darkTheme}>
             <ConnectionProvider endpoint={endpoint}>
-                <Component {...pageProps} />
+                <Header />
+                <div style={{ minHeight: '100vh' }}>
+                    <Component {...pageProps} />
+                </div>
+                <Footer />
             </ConnectionProvider>
         </ThemeProvider>
     );

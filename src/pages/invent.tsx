@@ -170,9 +170,6 @@ export default function InventPage() {
 
     return (
         <>
-            <Header />
-            <br />
-
             <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                 <h3 style={{ color: 'orange' }}>
                     There is still the possibility that we do not have every tried attempt. All attempts that are shown

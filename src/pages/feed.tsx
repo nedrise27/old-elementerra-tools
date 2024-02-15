@@ -43,8 +43,6 @@ export default function FeedPage() {
 
     return (
         <>
-            <Header />
-
             <h2>Feed (WIP)</h2>
 
             <Paper sx={{ width: '90%', margin: '1rem auto' }}>

@@ -189,8 +189,6 @@ export default function Elments() {
 
     return (
         <>
-            <Header />
-
             <Box sx={{ padding: '1rem 4rem' }}>
                 <TextField
                     type="search"

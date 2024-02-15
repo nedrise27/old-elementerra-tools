@@ -41,7 +41,6 @@ export default function RoiCrystalsPage() {
 
     return (
         <>
-            <Header />
             <div style={{ padding: '1rem 2rem' }}>
                 <p>Rabbit FP: {rabbitBasePrice} SOL</p>
                 <p>ELE/SOL: {calculatePrice(1, eleSolPrice)} SOL</p>

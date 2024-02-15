@@ -263,8 +263,6 @@ export default function CasingChests() {
 
     return (
         <>
-            <Header />
-
             <h2>Chasing Chests (WIP)</h2>
 
             <Box sx={{ padding: '1rem 4rem', gap: '1rem', display: 'flex', alignItems: 'center' }}>

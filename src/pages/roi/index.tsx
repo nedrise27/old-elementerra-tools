@@ -11,8 +11,6 @@ import { CRYSTALS_IMAGES, RABBITS_ELE_PER_HOUR, RABBIT_IMAGE } from '../../lib/c
 export default function RoiPage() {
     return (
         <>
-            <Header />
-
             <Box sx={{ flexGrow: 1, marginTop: '2rem' }}>
                 <Grid container spacing={2} gap={2} justifyContent={'space-evenly'}>
                     <Link href={'/roi/rabbits'}>
