@@ -26,7 +26,8 @@ import {
 } from '@mui/material';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
 import { useChestPricesStore } from '../app/stores/prices';
-import { normalize } from '../lib/utils';
+import { normalize, toFixedNoTralingZeroes } from '../lib/utils';
+import { CHESTS_AVARAGE_ELE_PER_HOUR } from '../lib/constants/chests';
 
 type ElementsStats = {
     elementName: string;
@@ -40,25 +41,17 @@ type ElementsStats = {
 type Order = 'none' | 'asc' | 'desc';
 
 type ChestWeight = {
-    chestTier: string;
+    chestTier: number;
     weight: string;
 };
 
-const defaultChestsWeights: ChestWeight[] = [
-    { chestTier: '1', weight: '1' },
-    { chestTier: '2', weight: '2' },
-    { chestTier: '3', weight: '3' },
-    { chestTier: '4', weight: '4' },
-    { chestTier: '5', weight: '5' },
-    { chestTier: '6', weight: '6' },
-    { chestTier: '7', weight: '7' },
-];
+const defaultChestsWeights = CHESTS_AVARAGE_ELE_PER_HOUR.map(({ tier, avarageElePerHour }) => ({
+    chestTier: tier,
+    weight: avarageElePerHour.toString(),
+}));
 
 export default function CasingChests() {
     const { connection } = useConnection();
-
-    const wallets = useAssetStore((state) => state.wallets);
-    const walletLoadinState = useAssetStore((state) => state.loadingState);
 
     const elements = useElementsInfoStore((state) => state.elements);
     const elementsRecord = useElementsInfoStore((state) => state.elementsRecord);
@@ -71,14 +64,8 @@ export default function CasingChests() {
 
     const [chestsWeights, setChestsWeights] = useState(defaultChestsWeights);
 
-    const [orderByCostEffectiveness, setOrderByCostEffectiveness] = useState<Order>('none');
-
-    const [loaded, setLoaded] = useState(false);
-
     useEffect(() => {
         if (elements.length > 0) {
-            setLoaded(true);
-
             const sortedElements = _.orderBy(
                 elements.filter((e) => e.chestsAvailable && e.invented),
                 ['tier', 'price'],
@@ -117,24 +104,9 @@ export default function CasingChests() {
                 }
             }
 
-            stats.forEach(
-                (stat) =>
-                    (stat.costEffectiveness = normalize(
-                        stat.costEffectiveness,
-                        maxCostEffectiveness!,
-                        minCostEffectiveness!
-                    ))
-            );
-
-            setElementsStats(stats);
+            setElementsStats(_.orderBy(stats, ['costEffectiveness'], ['desc']));
         }
     }, [elements, chestsWeights]);
-
-    useEffect(() => {
-        if (orderByCostEffectiveness !== 'none') {
-            setElementsStats(_.orderBy(elementsStats, ['costEffectiveness'], [orderByCostEffectiveness]));
-        }
-    }, [orderByCostEffectiveness]);
 
     useEffect(() => {
         fetchElements(connection);
@@ -144,7 +116,7 @@ export default function CasingChests() {
     function getReturnValue(chests: Record<number, number>): number {
         return _.sum(
             Object.entries(chests).map(([tier, count]) => {
-                const weight = chestsWeights.find((cw) => cw.chestTier === tier)?.weight!;
+                const weight = chestsWeights.find((cw) => cw.chestTier === parseInt(tier, 10))?.weight!;
                 return parseFloat(weight) * count;
             })
         );
@@ -171,55 +143,12 @@ export default function CasingChests() {
         }
     }
 
-    function getAvailableElements() {
-        const availableElements: Record<string, number> = {};
-
-        for (const e of Object.values(wallets).flatMap((w) => w.elements.map((e) => e.content?.metadata.name))) {
-            const elementName = e!;
-
-            if (!_.has(availableElements, elementName)) {
-                availableElements[elementName] = 1;
-            } else {
-                availableElements[elementName] += 1;
-            }
-        }
-
-        return availableElements;
-    }
-
-    function craftElement(recipe: string[], availableElements: Record<string, number>) {
-        const recipeNames = recipe.map((e) => elementsRecord[e].name);
-
-        const available = _.clone(availableElements);
-        let used = 0;
-
-        for (const elementName of recipeNames) {
-            if (_.has(available, elementName)) {
-                available[elementName] -= 1;
-                used++;
-            }
-        }
-
-        if (used === 4) {
-            console.log('Craftet');
-        } else {
-            for (const element of recipe) {
-                if (element !== PADDING_ADDRESS) {
-                    const innerRecipe = elementsRecord[element].recipe;
-                    craftElement(innerRecipe, availableElements);
-                }
-            }
-        }
-    }
-
     function handleChestWeightChange(chestWeight: ChestWeight, value: string) {
-        resetOrders();
-        const newWeights = [];
+        const newWeights: ChestWeight[] = [];
         for (const c of chestsWeights) {
             if (c.chestTier !== chestWeight.chestTier) {
                 newWeights.push(c);
             } else {
-                const weight = parseFloat(value);
                 newWeights.push({ chestTier: chestWeight.chestTier, weight: value });
             }
         }
@@ -227,75 +156,69 @@ export default function CasingChests() {
         setChestsWeights(newWeights);
     }
 
-    function handleChestWeightDefault() {
-        resetOrders();
+    function handleChestWeightElePerHour() {
         setChestsWeights(defaultChestsWeights);
     }
 
     async function handleChestWeightPrice() {
-        setLoaded(false);
-        resetOrders();
-
-        const newChestsWeights = [];
+        const newChestsWeights: ChestWeight[] = [];
         for (const [chestTier, weight] of Object.entries(chestPrices)) {
-            newChestsWeights.push({ chestTier, weight: weight ? weight.toString() : '0' });
+            newChestsWeights.push({ chestTier: parseInt(chestTier, 10), weight: weight ? weight.toString() : '0' });
         }
         if (!_.isEmpty(newChestsWeights)) {
             setChestsWeights(newChestsWeights);
         }
-
-        setLoaded(true);
-    }
-
-    function handleToggleOrderByCostEffectiveness() {
-        if (orderByCostEffectiveness === 'none') {
-            setOrderByCostEffectiveness('desc');
-        } else if (orderByCostEffectiveness === 'desc') {
-            setOrderByCostEffectiveness('asc');
-        } else {
-            setOrderByCostEffectiveness('none');
-        }
-    }
-
-    function resetOrders() {
-        setOrderByCostEffectiveness('none');
     }
 
     return (
         <>
             <h2>Chasing Chests (WIP)</h2>
 
-            <Box sx={{ padding: '1rem 4rem', gap: '1rem', display: 'flex', alignItems: 'center' }}>
+            <Box
+                sx={{
+                    width: '100%',
+                    padding: '1rem 4rem',
+                    gap: '1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'start',
+                }}
+            >
                 <Typography component={'h5'}>Chests Values: </Typography>
 
-                {_.orderBy(chestsWeights, ['chestTier', 'asc']).map((chestWeight) => (
-                    <FormControl key={chestWeight.chestTier}>
-                        <TextField
-                            placeholder={'Tier: ' + chestWeight.chestTier}
-                            label={'Tier: ' + chestWeight.chestTier}
-                            sx={{ maxWidth: 100 }}
-                            type="text"
-                            value={chestWeight.weight}
-                            onChange={(event) => handleChestWeightChange(chestWeight, event.target.value)}
-                        />
-                    </FormControl>
-                ))}
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {_.orderBy(chestsWeights, ['chestTier', 'asc']).map((chestWeight) => (
+                        <FormControl key={chestWeight.chestTier}>
+                            <TextField
+                                placeholder={'Tier: ' + chestWeight.chestTier}
+                                label={'Tier: ' + chestWeight.chestTier}
+                                sx={{ maxWidth: 100 }}
+                                type="text"
+                                value={chestWeight.weight}
+                                onChange={(event) => handleChestWeightChange(chestWeight, event.target.value)}
+                            />
+                        </FormControl>
+                    ))}
+                </div>
 
-                <Button variant="outlined" onClick={handleChestWeightDefault}>
-                    Default Chest Values
-                </Button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Typography component={'h5'}>Preset Chest Values: </Typography>
 
-                <Button variant="outlined" onClick={async () => await handleChestWeightPrice()}>
-                    Chest Values by floor price
-                </Button>
+                    <Button variant="outlined" onClick={handleChestWeightElePerHour}>
+                        By Average ELE/h
+                    </Button>
+
+                    <Button variant="outlined" onClick={async () => await handleChestWeightPrice()}>
+                        By Floor Price
+                    </Button>
+                </div>
             </Box>
 
             <br />
 
             <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                 <p>
-                    <strong style={{ color: 'orange' }}>Profitability Points</strong> are calculated by{' '}
-                    <strong style={{ color: 'orange' }}>Value / Cost</strong> and then normalized
+                    <strong style={{ color: 'rgb(102, 187, 106)' }}>Profitability = Value / Cost</strong>
                 </p>
             </div>
 
@@ -305,24 +228,17 @@ export default function CasingChests() {
                 <Table sx={{ minWidth: 600 }} aria-label="ELE production table">
                     <TableHead>
                         <TableRow>
+                            <TableCell>Rank</TableCell>
                             <TableCell>Element</TableCell>
                             <TableCell>Chests</TableCell>
                             <TableCell>Value</TableCell>
                             <TableCell>Cost</TableCell>
-                            <TableCell>
-                                <Button
-                                    variant="text"
-                                    color={orderByCostEffectiveness === 'none' ? 'primary' : 'success'}
-                                    onClick={handleToggleOrderByCostEffectiveness}
-                                >
-                                    {viewOrderByArrow('Profitability Points', orderByCostEffectiveness)}
-                                </Button>
-                            </TableCell>
+                            <TableCell>Value / Cost</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {elementsStats.map((stats) => (
-                            <ViewElementsStatsRow key={stats.elementName} stats={stats} />
+                        {elementsStats.map((stats, index) => (
+                            <ViewElementsStatsRow key={stats.elementName} rank={index + 1} stats={stats} />
                         ))}
                     </TableBody>
                 </Table>
@@ -332,17 +248,19 @@ export default function CasingChests() {
 }
 
 type ViewElementsStatsRowProps = {
+    rank: number;
     stats: ElementsStats;
 };
 
 function ViewElementsStatsRow(props: ViewElementsStatsRowProps) {
     return (
         <TableRow>
+            <TableCell>{props.rank}</TableCell>
             <TableCell>{props.stats.elementName}</TableCell>
             <TableCell>{viewChests(props.stats.chests)}</TableCell>
-            <TableCell>{props.stats.returnValue}</TableCell>
-            <TableCell>{props.stats.cost}</TableCell>
-            <TableCell>{(props.stats.costEffectiveness * 100).toFixed(0)}</TableCell>
+            <TableCell>{toFixedNoTralingZeroes(props.stats.returnValue, 8)}</TableCell>
+            <TableCell>{props.stats.cost.toFixed(0)}</TableCell>
+            <TableCell>{toFixedNoTralingZeroes(props.stats.costEffectiveness, 8)}</TableCell>
         </TableRow>
     );
 }
@@ -360,26 +278,4 @@ function viewChests(chests: Record<string, number>) {
     }
 
     return view;
-}
-
-function viewOrderByArrow(label: string, order: Order) {
-    if (order === 'desc') {
-        return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                {label} <ArrowDownward sx={{ width: '1rem', height: '1rem' }} />
-            </div>
-        );
-    } else if (order === 'asc') {
-        return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                {label} <ArrowUpward sx={{ width: '1rem', height: '1rem' }} />
-            </div>
-        );
-    } else {
-        return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                {label} <div style={{ width: '1rem', height: '1rem' }}></div>
-            </div>
-        );
-    }
 }

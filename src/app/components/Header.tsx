@@ -32,10 +32,10 @@ export function Header() {
 
                 <nav className={styles.Navigation}>
                     <Link href={'/'}>Home</Link>
-                    <Link href={'/chasing-chests'}>Chasing Chests</Link>
-                    <Link href={'/invent'}>Invent</Link>
-                    <Link href={'/roi'}>Roi Tables</Link>
                     <Link href={'/elements'}>Elements</Link>
+                    <Link href={'/invent'}>Invent</Link>
+                    <Link href={'/chasing-chests'}>Chasing Chests</Link>
+                    <Link href={'/roi'}>Roi Tables</Link>
                     <Link href={'/feed'}>Forging Feed</Link>
                 </nav>
             </AppBar>
