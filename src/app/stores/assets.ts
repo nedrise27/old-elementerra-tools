@@ -7,6 +7,7 @@ import { CRYSTALS_ELE_PER_HOUR, RABBITS_ELE_PER_HOUR } from '../../lib/constants
 import { OTHER_STAKABLE_NFT_COLLECTIONS } from '../../lib/constants/otherNfts';
 import {
     ELEMENTERRA_CRYSTALS_COLLECTION,
+    ELEMENTERRA_CRYSTALS_COLLECTION2,
     ELEMENTERRA_ELEMENTS_COLLECTION,
     ELEMENTERRA_RABBITS_COLLECTION,
 } from '../../pages/_app';
@@ -39,6 +40,10 @@ const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT ||
 const helius = new Helius(process.env.NEXT_PUBLIC_HELIUS_API_KEY!);
 const metaplex = Metaplex.make(connection);
 
+function isInCollection(nft: DAS.GetAssetResponse, collection: string): boolean {
+    return !_.isNil(nft.grouping?.find((g) => g.group_key === 'collection' && g.group_value === collection));
+}
+
 async function getRabbitLevel(rabbit: DAS.GetAssetResponse): Promise<number> {
     const metadataAddress = metaplex
         .nfts()
@@ -61,7 +66,7 @@ export const useAssetStore = create<AssetsStore>((set, get) => {
         if (!_.isNil(get().wallets[ownerAddress])) {
             return;
         }
-        
+
         set((state) => ({
             ...state,
             loadingState: 'loading',
@@ -100,9 +105,7 @@ export const useAssetStore = create<AssetsStore>((set, get) => {
             page++;
         }
 
-        const rabbitsRes = unburned.filter(
-            (item) => _.first(item.grouping)?.group_value == ELEMENTERRA_RABBITS_COLLECTION
-        );
+        const rabbitsRes = unburned.filter((item) => isInCollection(item, ELEMENTERRA_RABBITS_COLLECTION));
 
         const rabbitLevels = await Promise.all(rabbitsRes.map(getRabbitLevel));
 
@@ -118,7 +121,9 @@ export const useAssetStore = create<AssetsStore>((set, get) => {
         }
 
         const crystalsRes = unburned.filter(
-            (item) => _.first(item.grouping)?.group_value == ELEMENTERRA_CRYSTALS_COLLECTION
+            (item) =>
+                isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION) ||
+                isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION2)
         );
         let crystalsElePerHour = 0;
         const crystals: Stakable[] = [];
@@ -133,9 +138,7 @@ export const useAssetStore = create<AssetsStore>((set, get) => {
             });
         }
 
-        const elements = unburned.filter(
-            (item) => !_.isNil(item.grouping?.find((group) => group.group_value === ELEMENTERRA_ELEMENTS_COLLECTION))
-        );
+        const elements = unburned.filter((item) => isInCollection(item, ELEMENTERRA_ELEMENTS_COLLECTION));
 
         const otherNFTs: Stakable[] = [];
         let otherNFTsElePerHour = 0;
