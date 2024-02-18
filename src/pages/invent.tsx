@@ -301,7 +301,7 @@ export default function InventPage() {
                                 sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
                                 component={Paper}
                             >
-                                <Typography sx={{}}>These recipes where already tried</Typography>
+                                <Typography sx={{}}>These recipes were already tried</Typography>
                             </Toolbar>
                             <TableContainer
                                 component={Paper}
