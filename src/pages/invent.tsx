@@ -78,7 +78,9 @@ export default function InventPage() {
         if (!_.isNil(tier)) {
             const requiredTier = tier - 1;
             const highestSelectedTier = _.max(elementsToGuess.map((e) => e.element.tier)) || 0;
-            if (highestSelectedTier < requiredTier) {
+            if (elementsToGuess.length >= 10) {
+                setWarning(`Please only select at most 10 elements`);
+            } else if (highestSelectedTier < requiredTier) {
                 setWarning(`Please select at least one tier ${requiredTier} element`);
             } else {
                 setWarning('');
