@@ -107,7 +107,9 @@ function viewExtendedRecipe(extendedRecipe: ExtendedRecipe, index: number) {
                     justifyContent: 'space-between',
                 }}
             >
-                {Object.values(extendedRecipe).map(({ element, amount }) => viewExtendedRecipeItem(element, amount))}
+                {_.orderBy(Object.values(extendedRecipe), ['element.tier', 'element.name'], ['asc', 'asc']).map(({ element, amount }) =>
+                    viewExtendedRecipeItem(element, amount)
+                )}
             </Paper>
         </div>
     );

@@ -77,7 +77,6 @@ export default function Elments() {
                 recipes.push(`{${recipe.join(',')}}`);
             }
         }
-        console.log(recipes);
         setElementsDisplay(_.cloneDeep(elements));
     }, [elements, elementsRecord]);
 
