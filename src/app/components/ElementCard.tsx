@@ -1,4 +1,4 @@
-import { Box, Modal, Paper, Typography } from '@mui/material';
+import { Box, InputLabel, Modal, Paper, TextField, Typography } from '@mui/material';
 import _ from 'lodash';
 import Image from 'next/image';
 
@@ -6,6 +6,7 @@ import { Element } from '../stores/shopElements';
 import { calculatePrice } from '../../lib/utils';
 import { ExtendedRecipe } from '../../pages/elements';
 import styles from '../../styles/Elements.module.css';
+import { useState } from 'react';
 
 type Props = {
     readonly key?: string;
@@ -94,7 +95,7 @@ function viewExtendedRecipeItem(element: Element, amount: number) {
     );
 }
 
-function viewExtendedRecipe(extendedRecipe: ExtendedRecipe, index: number) {
+function viewExtendedRecipe(index: number, extendedRecipe: ExtendedRecipe, multiplier: number) {
     return (
         <div key={index} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
             {index ? 'or' : ''}
@@ -107,8 +108,8 @@ function viewExtendedRecipe(extendedRecipe: ExtendedRecipe, index: number) {
                     justifyContent: 'space-between',
                 }}
             >
-                {_.orderBy(Object.values(extendedRecipe), ['element.tier', 'element.name'], ['asc', 'asc']).map(({ element, amount }) =>
-                    viewExtendedRecipeItem(element, amount)
+                {_.orderBy(Object.values(extendedRecipe), ['element.tier', 'element.name'], ['asc', 'asc']).map(
+                    ({ element, amount }) => viewExtendedRecipeItem(element, amount * multiplier)
                 )}
             </Paper>
         </div>
@@ -124,6 +125,17 @@ type ElementModalCardProps = {
 };
 
 export function ElementModalCard(props: ElementModalCardProps) {
+    const [amount, setAmount] = useState(1);
+
+    function handleAmountChange(value: string) {
+        const a = parseInt(value, 10);
+        if (_.isInteger(a) && !_.isNaN(a) && a > 0) {
+            setAmount(a);
+        } else {
+            setAmount(1);
+        }
+    }
+
     return (
         <Modal
             open={!_.isNil(props.element)}
@@ -137,7 +149,7 @@ export function ElementModalCard(props: ElementModalCardProps) {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    minWidth: 400,
+                    minWidth: 520,
                     bgcolor: 'background.paper',
                     border: '2px solid #000',
                     boxShadow: 24,
@@ -172,26 +184,38 @@ export function ElementModalCard(props: ElementModalCardProps) {
                         />
                     </div>
 
-                    <div className={styles.PriceContainer}>
-                        <p className={styles.Price}>
-                            {props.element?.price ? `${props.element?.price} ELE` : 'unkown'}
-                        </p>
-                        <p className={styles.Price}>
-                            {props.element?.price
-                                ? `${calculatePrice(props.eleSolPrice, props.element?.price)} SOL`
-                                : 'unkown'}
-                        </p>
-                        <p className={styles.Price}>
-                            {props.element?.price
-                                ? `${calculatePrice(props.eleUsdcPrice, props.element?.price)} USDC`
-                                : 'unkown'}
-                        </p>
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <InputLabel>Amount: </InputLabel>
+                            <TextField
+                                sx={{ maxWidth: '6rem' }}
+                                type="number"
+                                value={amount}
+                                onChange={(event) => handleAmountChange(event.target.value)}
+                            />
+                        </div>
+
+                        <div className={styles.PriceContainer}>
+                            <p className={styles.Price}>
+                                {props.element?.price ? `${props.element?.price * amount} ELE` : 'unkown'}
+                            </p>
+                            <p className={styles.Price}>
+                                {props.element?.price
+                                    ? `${calculatePrice(props.eleSolPrice, props.element?.price * amount)} SOL`
+                                    : 'unkown'}
+                            </p>
+                            <p className={styles.Price}>
+                                {props.element?.price
+                                    ? `${calculatePrice(props.eleUsdcPrice, props.element?.price * amount)} USDC`
+                                    : 'unkown'}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 <br />
                 <p>Recipe and Breakdown:</p>
-                <div>{props.extendedRecipes?.map(viewExtendedRecipe)}</div>
+                <div>{props.extendedRecipes?.map((recipe, index) => viewExtendedRecipe(index, recipe, amount))}</div>
             </Box>
         </Modal>
     );
