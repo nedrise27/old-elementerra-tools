@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Link from 'next/link';
 
 import styles from '../../styles/Header.module.css';
-import { useEleSolPriceStore, useEleUsdcPriceStore } from '../stores/prices';
+import { useEleSolPriceStore, useEleUsdcPriceStore, useRabbitPriceStore } from '../stores/prices';
 import { FormEvent, useEffect, useState } from 'react';
 import { useAssetStore } from '../stores/assets';
 import { Delete } from '@mui/icons-material';
@@ -13,10 +13,13 @@ export function Header() {
     const refreshEleSolPrice = useEleSolPriceStore((state) => state.fetch);
     const eleUsdcPrice = useEleUsdcPriceStore((state) => state.price);
     const refreshEleUsdcPrice = useEleUsdcPriceStore((state) => state.fetch);
+    const rabbitBasePrice = useRabbitPriceStore((state) => state.price);
+    const fetchRabbitBasePrice = useRabbitPriceStore((state) => state.fetch);
 
     useEffect(() => {
         refreshEleSolPrice();
         refreshEleUsdcPrice();
+        fetchRabbitBasePrice();
     }, [refreshEleSolPrice, refreshEleUsdcPrice]);
 
     return (
@@ -32,6 +35,7 @@ export function Header() {
                 </nav>
 
                 <div className={styles.HeaderInfo}>
+                    <p>Rabbit FP: {_.round(rabbitBasePrice || 0, 2).toFixed(2)} SOL</p>
                     <p>ELE/SOL: {_.round(eleSolPrice || 0, 8).toFixed(10)} SOL</p>
                     <p>ELE/USDC: {_.round(eleUsdcPrice || 0, 8).toFixed(8)} USDC</p>
                 </div>

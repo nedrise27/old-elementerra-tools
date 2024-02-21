@@ -172,17 +172,9 @@ export default function CasingChests() {
 
     return (
         <>
-            <h2>Chasing Chests (WIP)</h2>
+            <Box sx={{ maxWidth: 900, margin: '1rem auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <h2>Chasing Chests (WIP)</h2>
 
-            <Box
-                sx={{
-                    width: '100%',
-                    gap: '1rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'start',
-                }}
-            >
                 <Typography component={'h5'}>Chests Values: </Typography>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -213,18 +205,8 @@ export default function CasingChests() {
                 </div>
             </Box>
 
-            <br />
-
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                <p>
-                    <strong style={{ color: 'rgb(102, 187, 106)' }}>Profitability = Value / Cost</strong>
-                </p>
-            </div>
-
-            <br />
-
-            <TableContainer component={Paper}>
-                <Table size="small" aria-label="ELE production table">
+            <TableContainer component={Paper} sx={{ maxWidth: 900, maxHeight: '75vh', margin: '1rem auto' }}>
+                <Table stickyHeader aria-label="ELE production table">
                     <TableHead>
                         <TableRow>
                             <TableCell>Element</TableCell>

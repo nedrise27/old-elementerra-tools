@@ -243,8 +243,8 @@ export default function InventPage() {
                         </Button>
                     </div>
 
-                    <TableContainer component={Paper} sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                        <Table sx={{ maxWidth: 900 }} size='small'>
+                    <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
+                        <Table size='small'>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Element</TableCell>
@@ -277,14 +277,14 @@ export default function InventPage() {
                     ) : suggestionsLoading === 'loaded' ? (
                         <>
                             <Toolbar
-                                sx={{ width: '100%', minWidth: '300px', display: 'flex', justifyContent: 'center' }}
                                 component={Paper}
+                                sx={{ maxWidth: 900, margin: '0 auto' }}
                             >
                                 <Typography>No one tried these recipes yet. Count: {recipesToTryAmount}</Typography>
                             </Toolbar>
                             <TableContainer
                                 component={Paper}
-                                sx={{ width: '100%', minWidth: '300px', display: 'flex', justifyContent: 'center' }}
+                                sx={{ maxWidth: 900, margin: '0 auto' }}
                             >
                                 <Table sx={{ maxWidth: 900 }} size='small'>
                                     <TableBody>
@@ -298,14 +298,14 @@ export default function InventPage() {
                             <br />
 
                             <Toolbar
-                                sx={{ width: '100%', minWidth: '300px', display: 'flex', justifyContent: 'center' }}
+                                sx={{ maxWidth: 900, margin: '0 auto' }}
                                 component={Paper}
                             >
                                 <Typography>These recipes were already tried</Typography>
                             </Toolbar>
                             <TableContainer
                                 component={Paper}
-                                sx={{ width: '100%', minWidth: '300px', display: 'flex', justifyContent: 'center' }}
+                                sx={{ maxWidth: 900, margin: '0 auto' }}
                             >
                                 <Table sx={{ maxWidth: 900 }} size='small'>
                                     <TableBody>

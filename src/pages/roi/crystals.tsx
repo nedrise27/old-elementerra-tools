@@ -30,8 +30,8 @@ export default function RoiCrystalsPage() {
             {loading ? (
                 <h3>Loading ...</h3>
             ) : (
-                <TableContainer component={Paper}>
-                    <Table size="small" aria-label="ELE production table">
+                <TableContainer component={Paper} sx={{ maxHeight: '75vh', maxWidth: 900, margin: '2rem auto' }}>
+                    <Table stickyHeader aria-label="ELE production table">
                         <TableHead>
                             <TableRow>
                                 <TableCell>Crystal LvL</TableCell>

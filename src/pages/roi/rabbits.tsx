@@ -41,43 +41,37 @@ export default function RoiCrystalsPage() {
 
     return (
         <>
-            <div style={{ padding: '1rem 2rem' }}>
-                <p>Rabbit FP: {rabbitBasePrice} SOL</p>
-                <p>ELE/SOL: {calculatePrice(1, eleSolPrice)} SOL</p>
-            </div>
             {loading ? (
                 <h3>Loading ...</h3>
             ) : (
-                <Paper sx={{ width: '95%', margin: '0 auto', overflow: 'hidden' }}>
-                    <TableContainer sx={{ maxHeight: '75vh' }}>
-                        <Table stickyHeader aria-label="ELE production table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Rabbit LvL</TableCell>
-                                    <TableCell>ELE/h</TableCell>
-                                    <TableCell>SOL/d</TableCell>
-                                    <TableCell>Element to burn</TableCell>
-                                    <TableCell>ELE to burn</TableCell>
-                                    <TableCell>Lvl Cost</TableCell>
-                                    <TableCell>Lvl Cost SUM</TableCell>
-                                    <TableCell>FP + Lvl Cost SUM</TableCell>
-                                    <TableCell>ROI in Days</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {rabbitsLevelInfo &&
-                                    Object.entries(rabbitsLevelInfo).map(([level, info]) => (
-                                        <ViewRabbitRoiRow
-                                            key={level}
-                                            level={level}
-                                            info={info}
-                                            basePrice={rabbitBasePrice}
-                                        />
-                                    ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Paper>
+                <TableContainer component={Paper} sx={{ maxHeight: '75vh', maxWidth: 1200, margin: '1rem auto' }}>
+                    <Table stickyHeader aria-label="ELE production table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Rabbit LvL</TableCell>
+                                <TableCell>ELE/h</TableCell>
+                                <TableCell>SOL/d</TableCell>
+                                <TableCell>Element to burn</TableCell>
+                                <TableCell>ELE to burn</TableCell>
+                                <TableCell>Lvl Cost</TableCell>
+                                <TableCell>Lvl Cost SUM</TableCell>
+                                <TableCell>FP + Lvl Cost SUM</TableCell>
+                                <TableCell>ROI in Days</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {rabbitsLevelInfo &&
+                                Object.entries(rabbitsLevelInfo).map(([level, info]) => (
+                                    <ViewRabbitRoiRow
+                                        key={level}
+                                        level={level}
+                                        info={info}
+                                        basePrice={rabbitBasePrice}
+                                    />
+                                ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             )}
         </>
     );

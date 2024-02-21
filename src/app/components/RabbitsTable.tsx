@@ -20,7 +20,7 @@ function viewRabbitRow(stakable: Stakable, eleSolPrice: number) {
 
 export function RabbitsTable(props: Props) {
     return (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
             <Table size='small' aria-label="ELE production table">
                 <TableHead>
                     <TableRow>

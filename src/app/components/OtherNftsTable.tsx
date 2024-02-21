@@ -20,8 +20,8 @@ function viewOtherNFTRow(name: string, eleProduction: number, eleSolPrice: numbe
 
 export function OtherNftsTable(props: Props) {
     return (
-        <TableContainer component={Paper}>
-            <Table size="small" aria-label="ELE production table">
+        <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
+            <Table aria-label="ELE production table">
                 <TableHead>
                     <TableRow>
                         <TableCell>Name</TableCell>

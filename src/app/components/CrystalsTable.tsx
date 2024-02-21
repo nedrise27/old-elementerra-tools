@@ -38,7 +38,7 @@ export function CrystalsTable(props: Props) {
     }
 
     return (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
             <Table size='small' aria-label="ELE production table">
                 <TableHead>
                     <TableRow>
