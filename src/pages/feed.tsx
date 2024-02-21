@@ -1,8 +1,9 @@
-import { Box, List, ListItem, ListItemText, Paper } from '@mui/material';
+import { Box, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { Header } from '../app/components/Header';
+import styles from '../styles/Feed.module.css';
 
 export enum EventTopics {
     inventing = 'inventing',
@@ -77,29 +78,40 @@ export default function FeedPage() {
 
     return (
         <>
-            <h2>Feed (WIP)</h2>
+            <div style={{ margin: '1rem auto', maxWidth: 1080 }}>
+                <h2>Feed (WIP)</h2>
 
-            <Paper sx={{ width: '90%', margin: '1rem auto' }}>
-                <Box>
-                    <nav aria-label="secondary mailbox folders">
-                        <List>
-                            {_.isEmpty(messages) ? (
-                                <div>Waiting for events ...</div>
-                            ) : (
-                                _.orderBy(Object.values(messages), 'timestamp', 'desc').map((message, i) => (
-                                    <ListItem key={i}>
-                                        <ListItemText>
-                                            {new Date(message.timestamp * 1000).toLocaleString()}
-                                        </ListItemText>
-                                        <ListItemText>{message.user}</ListItemText>
-                                        <ListItemText>{message.event}</ListItemText>
-                                    </ListItem>
-                                ))
-                            )}
-                        </List>
-                    </nav>
-                </Box>
-            </Paper>
+                <h4 style={{ color: 'orange' }}>
+                    We will not show invention attempts anymore. Only when the forge is used with a known recipe or a
+                    new recipe was found.
+                </h4>
+
+                <Paper>
+                    <Box>
+                        <nav aria-label="secondary mailbox folders">
+                            <List>
+                                {_.isEmpty(messages) ? (
+                                    <div>Waiting for events ...</div>
+                                ) : (
+                                    _.orderBy(Object.values(messages), 'timestamp', 'desc').map((message, i) => (
+                                        <ListItem
+                                            className={styles.ListItem}
+                                            key={i}
+                                            alignItems="center"
+                                            divider={i < Object.keys(messages).length - 1}
+                                        >
+                                            <ListItemText className={styles.ListItemTimestamp}>
+                                                {new Date(message.timestamp * 1000).toLocaleString()}
+                                            </ListItemText>
+                                            <ListItemText primary={message.event} secondary={message.user} />
+                                        </ListItem>
+                                    ))
+                                )}
+                            </List>
+                        </nav>
+                    </Box>
+                </Paper>
+            </div>
         </>
     );
 }

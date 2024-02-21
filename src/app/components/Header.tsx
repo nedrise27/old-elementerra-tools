@@ -21,15 +21,7 @@ export function Header() {
 
     return (
         <>
-            <AppBar
-                position="static"
-                sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', padding: '0.5rem 2rem' }}
-            >
-                <div>
-                    <p>ELE/SOL: {_.round(eleSolPrice || 0, 8).toFixed(10)} SOL</p>
-                    <p>ELE/USDC: {_.round(eleUsdcPrice || 0, 8).toFixed(8)} USDC</p>
-                </div>
-
+            <AppBar position="static" className={styles.AppBar}>
                 <nav className={styles.Navigation}>
                     <Link href={'/'}>Home</Link>
                     <Link href={'/elements'}>Elements</Link>
@@ -38,8 +30,12 @@ export function Header() {
                     <Link href={'/roi'}>Roi Tables</Link>
                     <Link href={'/feed'}>Forging Feed</Link>
                 </nav>
+
+                <div className={styles.HeaderInfo}>
+                    <p>ELE/SOL: {_.round(eleSolPrice || 0, 8).toFixed(10)} SOL</p>
+                    <p>ELE/USDC: {_.round(eleUsdcPrice || 0, 8).toFixed(8)} USDC</p>
+                </div>
             </AppBar>
         </>
     );
 }
-

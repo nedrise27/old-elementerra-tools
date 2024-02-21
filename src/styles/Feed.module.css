@@ -1,0 +1,11 @@
+.ListItem {
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.ListItemTimestamp {
+    max-width: 200px;
+}
+.ListItemEvent {
+    /* flex: 1; */
+}

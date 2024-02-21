@@ -5,6 +5,7 @@ import { clusterApiUrl } from '@solana/web3.js';
 import type { AppProps } from 'next/app';
 import { Footer } from '../app/components/Footer';
 import { Header } from '../app/components/Header';
+import styles from '../styles/App.module.css';
 
 // Use require instead of import since order matters
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -38,7 +39,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <ThemeProvider theme={darkTheme}>
             <ConnectionProvider endpoint={endpoint}>
                 <Header />
-                <div style={{ minHeight: '100vh' }}>
+                <div className={styles.App}>
                     <Component {...pageProps} />
                 </div>
                 <Footer />

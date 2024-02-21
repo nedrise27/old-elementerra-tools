@@ -1,0 +1,7 @@
+.App {
+    min-height: 100vh;
+
+    @media only screen and (width <= 700px) {
+        padding: 0 0.5rem;
+    }
+}

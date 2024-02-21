@@ -1,3 +1,9 @@
+.AppBar {
+    display: 'flex';
+    justify-content: 'space-between';
+    padding: '0.5rem 2rem';
+}
+
 .Navigation {
     width: 100%;
     min-height: 32px;
@@ -7,6 +13,7 @@
     align-items: center;
     gap: 1rem;
     flex: 1;
+    flex-wrap: wrap;
 }
 
 .Navigation a {
@@ -33,10 +40,8 @@
     justify-content: space-between;
 }
 
-.walletButtons {
-    margin: 1.5rem 0;
-    display: flex;
-    gap: 2rem;
+.HeaderInfo {
+    font-size: small;
 }
 
 .Warning {
