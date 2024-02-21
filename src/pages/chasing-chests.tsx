@@ -177,7 +177,6 @@ export default function CasingChests() {
             <Box
                 sx={{
                     width: '100%',
-                    padding: '1rem 4rem',
                     gap: '1rem',
                     display: 'flex',
                     flexDirection: 'column',
@@ -186,7 +185,7 @@ export default function CasingChests() {
             >
                 <Typography component={'h5'}>Chests Values: </Typography>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                     {_.orderBy(chestsWeights, ['chestTier', 'asc']).map((chestWeight) => (
                         <FormControl key={chestWeight.chestTier}>
                             <TextField
@@ -225,10 +224,9 @@ export default function CasingChests() {
             <br />
 
             <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 600 }} aria-label="ELE production table">
+                <Table size="small" aria-label="ELE production table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Rank</TableCell>
                             <TableCell>Element</TableCell>
                             <TableCell>Chests</TableCell>
                             <TableCell>Value</TableCell>
@@ -255,7 +253,6 @@ type ViewElementsStatsRowProps = {
 function ViewElementsStatsRow(props: ViewElementsStatsRowProps) {
     return (
         <TableRow>
-            <TableCell>{props.rank}</TableCell>
             <TableCell>{props.stats.elementName}</TableCell>
             <TableCell>{viewChests(props.stats.chests)}</TableCell>
             <TableCell>{toFixedNoTralingZeroes(props.stats.returnValue, 8)}</TableCell>

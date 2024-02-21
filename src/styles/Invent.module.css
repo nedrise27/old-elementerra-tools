@@ -4,3 +4,9 @@
     align-items: center;
     gap: 0.5rem;
 }
+
+.RecipeRowName {
+    @media only screen and (width <= 700px) {
+        display: none;
+    }
+}

@@ -35,7 +35,7 @@ export function WalletInput() {
                     width: '100%',
                     display: 'flex',
                     justifyContent: 'start',
-                    gap: '4rem',
+                    gap: '2 rem',
                 }}
             >
                 <div
@@ -45,9 +45,13 @@ export function WalletInput() {
                         justifyContent: 'start',
                         alignItems: 'center',
                         gap: '2rem',
+                        flexWrap: "wrap",
                     }}
                 >
-                    <form style={{ minWidth: '500px', display: 'flex', gap: '0.4rem' }} onSubmit={handleWalletSubmit}>
+                    <form
+                        style={{ width: '50%', minWidth: '300px', display: 'flex', gap: '0.4rem' }}
+                        onSubmit={handleWalletSubmit}
+                    >
                         <TextField
                             fullWidth
                             label="Wallet Address"

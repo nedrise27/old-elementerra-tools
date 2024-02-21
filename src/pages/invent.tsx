@@ -244,7 +244,7 @@ export default function InventPage() {
                     </div>
 
                     <TableContainer component={Paper} sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                        <Table sx={{ minWidth: 600 }}>
+                        <Table sx={{ maxWidth: 900 }} size='small'>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Element</TableCell>
@@ -277,18 +277,16 @@ export default function InventPage() {
                     ) : suggestionsLoading === 'loaded' ? (
                         <>
                             <Toolbar
-                                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                                sx={{ width: '100%', minWidth: '300px', display: 'flex', justifyContent: 'center' }}
                                 component={Paper}
                             >
-                                <Typography sx={{}}>
-                                    No one tried these recipes yet. Count: {recipesToTryAmount}
-                                </Typography>
+                                <Typography>No one tried these recipes yet. Count: {recipesToTryAmount}</Typography>
                             </Toolbar>
                             <TableContainer
                                 component={Paper}
-                                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                                sx={{ width: '100%', minWidth: '300px', display: 'flex', justifyContent: 'center' }}
                             >
-                                <Table sx={{ minWidth: 600, maxWidth: 900 }}>
+                                <Table sx={{ maxWidth: 900 }} size='small'>
                                     <TableBody>
                                         {recipesToTry?.map((recipe, i) => (
                                             <RecipeRow key={i} recipe={recipe} />
@@ -300,16 +298,16 @@ export default function InventPage() {
                             <br />
 
                             <Toolbar
-                                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                                sx={{ width: '100%', minWidth: '300px', display: 'flex', justifyContent: 'center' }}
                                 component={Paper}
                             >
-                                <Typography sx={{}}>These recipes were already tried</Typography>
+                                <Typography>These recipes were already tried</Typography>
                             </Toolbar>
                             <TableContainer
                                 component={Paper}
-                                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                                sx={{ width: '100%', minWidth: '300px', display: 'flex', justifyContent: 'center' }}
                             >
-                                <Table sx={{ minWidth: 600, maxWidth: 900 }}>
+                                <Table sx={{ maxWidth: 900 }} size='small'>
                                     <TableBody>
                                         {alreadyTriedRecipes?.map((recipe, i) => (
                                             <RecipeRow key={i} recipe={recipe} />
@@ -338,8 +336,8 @@ function ElementCard(props: ElementCardProps) {
     return (
         <Paper
             sx={{
-                width: '100px',
-                height: '100px',
+                width: '90px',
+                height: '90px',
                 border: '1px solid rgba(100, 100, 100, 0.7)',
                 opacity: '0.8',
                 ':hover': {
@@ -418,25 +416,25 @@ function RecipeRow(props: RecipeRowProps) {
         <TableRow className={styles.RecipeRow}>
             <TableCell>
                 <div className={styles.RecipeRowCell}>
-                    {props.recipe[0].name}{' '}
+                    <span className={styles.RecipeRowName}>{props.recipe[0].name}</span>
                     <Image src={props.recipe[0].url} alt={props.recipe[0].name} width={24} height={24} />
                 </div>
             </TableCell>
             <TableCell>
                 <div className={styles.RecipeRowCell}>
-                    {props.recipe[1].name}
+                    <span className={styles.RecipeRowName}>{props.recipe[1].name}</span>
                     <Image src={props.recipe[1].url} alt={props.recipe[1].name} width={24} height={24} />
                 </div>
             </TableCell>
             <TableCell>
                 <div className={styles.RecipeRowCell}>
-                    {props.recipe[2].name}
+                    <span className={styles.RecipeRowName}>{props.recipe[2].name}</span>
                     <Image src={props.recipe[2].url} alt={props.recipe[2].name} width={24} height={24} />
                 </div>
             </TableCell>
             <TableCell>
                 <div className={styles.RecipeRowCell}>
-                    {props.recipe[3].name}
+                    <span className={styles.RecipeRowName}>{props.recipe[3].name}</span>
                     <Image src={props.recipe[3].url} alt={props.recipe[3].name} width={24} height={24} />
                 </div>
             </TableCell>

@@ -218,6 +218,7 @@ export default function Elments() {
                         <MenuItem value={'name:desc'}>Name descending</MenuItem>
                     </Select>
                 </FormControl>
+
                 <FormControl sx={{ minWidth: '150px' }}>
                     <InputLabel id="inventedFilterLabel">Filter</InputLabel>
                     <Select
@@ -235,6 +236,9 @@ export default function Elments() {
                         <MenuItem value={'no chests available'}>No Chests Available</MenuItem>
                     </Select>
                 </FormControl>
+            </Box>
+
+            <Box sx={{ padding: '1rem 4rem' }}>
                 <FormControl sx={{ minWidth: '150px' }}>
                     <FormGroup aria-label="position" row onChange={handleTierFilterSelect}>
                         <FormControlLabel value="0" control={<Checkbox />} label="Tier 0" labelPlacement="start" />
@@ -251,7 +255,7 @@ export default function Elments() {
 
             <br />
 
-            <Box sx={{ flexGrow: 1 }}>
+            <Box sx={{ flexGrow: 1, marginBottom: '2rem' }}>
                 <Grid container spacing={1} gap={1.5} justifyContent={'center'}>
                     {elementsDisplay.map((e) => (
                         <ElementCard

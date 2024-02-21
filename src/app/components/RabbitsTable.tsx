@@ -21,7 +21,7 @@ function viewRabbitRow(stakable: Stakable, eleSolPrice: number) {
 export function RabbitsTable(props: Props) {
     return (
         <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 600 }} aria-label="ELE production table">
+            <Table size='small' aria-label="ELE production table">
                 <TableHead>
                     <TableRow>
                         <TableCell>Rabbit</TableCell>

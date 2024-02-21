@@ -88,17 +88,9 @@ export default function Home() {
                 <meta name="description" content="Tools for Elementerra.io players, created by @nedrise." />
             </Head>
 
-            <div className={styles.container}>
-                <main className={styles.main}>
-                    <Box
-                        sx={{
-                            width: '100%',
-                            padding: '1rem 0',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                        }}
-                    >
+            <div className={styles.Container}>
+                <main className={styles.Main}>
+                    <Box className={styles.Inputs}>
                         <WalletInput />
 
                         <FormControl sx={{ minWidth: '300px' }}>
@@ -125,7 +117,7 @@ export default function Home() {
                     {assetsLoadingState === 'initial' || assetsLoadingState === 'loaded' ? (
                         <>
                             <TableContainer component={Paper}>
-                                <Table sx={{ minWidth: 600 }} aria-label="ELE production table">
+                                <Table size='small' aria-label="ELE production table">
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Summary</TableCell>

@@ -50,7 +50,7 @@ export default function RoiCrystalsPage() {
             ) : (
                 <Paper sx={{ width: '95%', margin: '0 auto', overflow: 'hidden' }}>
                     <TableContainer sx={{ maxHeight: '75vh' }}>
-                        <Table sx={{ minWidth: 600 }} stickyHeader aria-label="ELE production table">
+                        <Table stickyHeader aria-label="ELE production table">
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Rabbit LvL</TableCell>
