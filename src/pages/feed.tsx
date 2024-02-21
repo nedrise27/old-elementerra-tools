@@ -4,16 +4,26 @@ import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { Header } from '../app/components/Header';
 
-type FeedEvent = {
+export enum EventTopics {
+    inventing = 'inventing',
+    inventionAttempt = 'inventionAttempt',
+    forging = 'forging',
+}
+
+export type ForgeEvent = {
+    eventTopic: EventTopics;
     timestamp: number;
-    playerAddress: string;
-    event: string;
+    user: string;
+    event: any;
+    element: string;
+    isSuccess: boolean;
+    recipe: [string, string, string, string];
 };
 
 const socket = io(process.env.NEXT_PUBLIC_WEB_SOCKET_HOST!, { transports: ['websocket', 'polling'] });
 
 export default function FeedPage() {
-    const [messages, setMessages] = useState<Record<string, FeedEvent>>({});
+    const [messages, setMessages] = useState<Record<string, ForgeEvent>>({});
 
     useEffect(() => {
         socket.on('connect', function () {
@@ -23,7 +33,15 @@ export default function FeedPage() {
             console.log('Disconnected');
         });
 
-        socket.on('events', (message: FeedEvent | FeedEvent[]) => {
+        socket.on('inventing', (message: ForgeEvent | ForgeEvent[]) => {
+            if (_.isArray(message)) {
+                message.forEach((m) => handleUpdateMessages(m));
+            } else {
+                handleUpdateMessages(message);
+            }
+        });
+
+        socket.on('forging', (message: ForgeEvent | ForgeEvent[]) => {
             if (_.isArray(message)) {
                 message.forEach((m) => handleUpdateMessages(m));
             } else {
@@ -32,13 +50,29 @@ export default function FeedPage() {
         });
     }, []);
 
-    function handleUpdateMessages(message: FeedEvent) {
-        const hash = `${message.timestamp}${message.playerAddress}${message.event}`;
+    function handleUpdateMessages(forgeEvent: ForgeEvent) {
+        const hash = `${forgeEvent.timestamp}${forgeEvent.user}${forgeEvent.element}${forgeEvent.recipe.join('')}`;
+
+        let content = '';
+        if (forgeEvent.eventTopic === EventTopics.inventing) {
+            content = `Invented ${forgeEvent.element}! The recipe was ${printRecipe(forgeEvent.recipe)}`;
+        } else if (forgeEvent.eventTopic === EventTopics.inventionAttempt) {
+            content = `Tried a new recipe ${printRecipe(forgeEvent.recipe)}`;
+        } else if (forgeEvent.eventTopic === EventTopics.forging) {
+            content = `Forged "${forgeEvent.element}" with recipe ${printRecipe(forgeEvent.recipe)}`;
+        }
 
         setMessages((state) => ({
             ...state,
-            [hash]: message,
+            [hash]: {
+                ...forgeEvent,
+                event: content,
+            },
         }));
+    }
+
+    function printRecipe(recipe: [string, string, string, string]): string {
+        return `[ ${recipe.join(' + ')} ]`;
     }
 
     return (
@@ -57,7 +91,7 @@ export default function FeedPage() {
                                         <ListItemText>
                                             {new Date(message.timestamp * 1000).toLocaleString()}
                                         </ListItemText>
-                                        <ListItemText>{message.playerAddress}</ListItemText>
+                                        <ListItemText>{message.user}</ListItemText>
                                         <ListItemText>{message.event}</ListItemText>
                                     </ListItem>
                                 ))
