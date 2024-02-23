@@ -29,7 +29,6 @@ import { WalletInput } from '../app/components/WalletInput';
 
 export default function Home() {
     const wallets = useAssetStore((state) => state.wallets);
-    const addWallet = useAssetStore((state) => state.addWallet);
     const assetsLoadingState = useAssetStore((state) => state.loadingState);
 
     const [rabbitsElePerHour, setRabbitsElePerHour] = useState<number>(0);
@@ -53,12 +52,6 @@ export default function Home() {
         refreshEleSolPrice();
         refreshEleUsdcPrice();
     }, [refreshEleSolPrice, refreshEleUsdcPrice]);
-
-    async function handleWalletAddressInput(address: string) {
-        if (!_.isNil(address) && !_.isEmpty(address)) {
-            await addWallet(address);
-        }
-    }
 
     function handleTimeframeChange(event: SelectChangeEvent<number>) {
         event.preventDefault();

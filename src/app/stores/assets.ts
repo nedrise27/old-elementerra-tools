@@ -1,17 +1,17 @@
 import { Metaplex, PublicKey } from '@metaplex-foundation/js';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { encode as encodeb58 } from 'bs58';
 import { DAS, Helius } from 'helius-sdk';
 import _ from 'lodash';
 import { create } from 'zustand';
-import { CRYSTALS_ELE_PER_HOUR, RABBITS_ELE_PER_HOUR } from '../../lib/constants';
+import { RABBITS_ELE_PER_HOUR } from '../../lib/constants';
 import { OTHER_STAKABLE_NFT_COLLECTIONS } from '../../lib/constants/otherNfts';
+import { LoadingState } from '../../lib/utils';
 import {
-    ELEMENTERRA_CRYSTALS_COLLECTION,
-    ELEMENTERRA_CRYSTALS_COLLECTION2,
     ELEMENTERRA_ELEMENTS_COLLECTION,
+    ELEMENTERRA_PROGRAM_ID,
     ELEMENTERRA_RABBITS_COLLECTION,
 } from '../../pages/_app';
-import { LoadingState } from '../../lib/utils';
 
 export type Stakable = {
     nft: DAS.GetAssetResponse;
@@ -120,22 +120,48 @@ export const useAssetStore = create<AssetsStore>((set, get) => {
             }
         }
 
-        const crystalsRes = unburned.filter(
-            (item) =>
-                isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION) ||
-                isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION2)
-        );
+        // const crystalsRes = unburned.filter(
+        //     (item) =>
+        //         isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION) ||
+        //         isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION2)
+        // );
         let crystalsElePerHour = 0;
         const crystals: Stakable[] = [];
-        for (const crystal of crystalsRes) {
-            const level = crystal.content?.metadata?.attributes?.find((a) => a.trait_type == 'level')?.value!;
-            const elePerHour = CRYSTALS_ELE_PER_HOUR[level];
-            crystalsElePerHour += elePerHour;
-            crystals.push({
-                nft: crystal,
-                level,
-                elePerHour,
-            });
+        // for (const crystal of crystalsRes) {
+        //     const level = crystal.content?.metadata?.attributes?.find((a) => a.trait_type == 'level')?.value!;
+        //     const elePerHour = CRYSTALS_ELE_PER_HOUR[level];
+        //     crystalsElePerHour += elePerHour;
+        //     crystals.push({
+        //         nft: crystal,
+        //         level,
+        //         elePerHour,
+        //     });
+        // }
+        const crystalsRes = await connection.getProgramAccounts(new PublicKey(ELEMENTERRA_PROGRAM_ID), {
+            encoding: 'base64',
+            filters: [
+                {
+                    memcmp: {
+                        offset: 0,
+                        bytes: '6BJNiWbhqnj',
+                    },
+                },
+                {
+                    memcmp: {
+                        offset: 9,
+                        bytes: ownerAddress,
+                    },
+                },
+            ],
+        });
+
+        for (const res of crystalsRes) {
+            const data = res.account.data;
+
+            const first = data.subarray(0, 9);
+            // console.log(data.toString('hex'));
+            const second = encodeb58(data.subarray(9, 9 + 32));
+            console.log(second);
         }
 
         const elements = unburned.filter((item) => isInCollection(item, ELEMENTERRA_ELEMENTS_COLLECTION));
