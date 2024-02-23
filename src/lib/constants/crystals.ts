@@ -1,5 +1,5 @@
 export const CRYSTALS_ELE_PER_HOUR: Record<string, number> = {
-    '1': 25,
+    '1': 15,
     '2': 30,
     '3': 75,
     '4': 150,
