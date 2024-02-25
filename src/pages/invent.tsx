@@ -247,11 +247,7 @@ export default function InventPage() {
                         }}
                     >
                         <Typography color={'orange'}>{warning ? warning : ''}</Typography>
-                        <Button
-                            style={{ minHeight: '3rem' }}
-                            disabled={!_.isEmpty(warning)}
-                            onClick={handleRequestSuggetions}
-                        >
+                        <Button style={{ minHeight: '3rem' }} onClick={handleRequestSuggetions}>
                             Get suggestions
                         </Button>
                     </div>
