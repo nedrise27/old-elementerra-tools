@@ -78,9 +78,7 @@ export default function InventPage() {
         if (!_.isNil(tier)) {
             const requiredTier = tier - 1;
             const highestSelectedTier = _.max(elementsToGuess.map((e) => e.element.tier)) || 0;
-            if (elementsToGuess.length >= 10) {
-                setWarning(`Please only select at most 10 elements`);
-            } else if (highestSelectedTier < requiredTier) {
+            if (highestSelectedTier < requiredTier) {
                 setWarning(`Please select at least one tier ${requiredTier} element`);
             } else {
                 setWarning('');
@@ -91,6 +89,9 @@ export default function InventPage() {
     function resetSelection() {
         setElementToInvent(undefined);
         setElementsToGuess([]);
+        setRecipesToTry([]);
+        setRecipesToTryAmount(0);
+        setAlreadyTriedRecipes([]);
         setWarning('');
     }
 
@@ -141,33 +142,45 @@ export default function InventPage() {
 
     async function handleRequestSuggetions() {
         setSuggestionsLoading('loading');
-        const res = await fetch('https://elementerra.line27.de/recipes/get-available-recipes', {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                tier: elementToInvent?.tier,
-                elements: elementsToGuess.map((e) => ({
-                    element: e.element.name.replaceAll(' ', '').toLowerCase(),
-                    minAmount: e.minAmount,
-                    maxAmount: e.maxAmount,
-                })),
-            }),
-        });
-        const body = await res.json();
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes/get-available-recipes`, {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    tier: elementToInvent?.tier,
+                    elements: elementsToGuess.map((e) => ({
+                        element: e.element.name.replaceAll(' ', '').toLowerCase(),
+                        minAmount: e.minAmount,
+                        maxAmount: e.maxAmount,
+                    })),
+                }),
+            });
+            const body = await res.json();
 
-        const possibilities = body.possibilities.map((p: string[]) =>
-            p.map((el) => elements.find((e) => e.name.replaceAll(' ', '').toLowerCase() === el))
-        );
-        const alreadyTried = body.alreadyTried.map((p: string[]) =>
-            p.map((el) => elements.find((e) => e.name.replaceAll(' ', '').toLowerCase() === el))
-        );
+            const possibilities = body.possibilities.map((p: string[]) =>
+                p.map((el) => elements.find((e) => e.name.replaceAll(' ', '').toLowerCase() === el))
+            );
+            const alreadyTried = body.alreadyTried.map((p: string[]) =>
+                p.map((el) => elements.find((e) => e.name.replaceAll(' ', '').toLowerCase() === el))
+            );
 
-        setRecipesToTry(possibilities);
-        setRecipesToTryAmount(body.numberOfPossibilies);
-        setAlreadyTriedRecipes(alreadyTried);
+            setRecipesToTry(possibilities);
+            setRecipesToTryAmount(body.numberOfPossibilies);
+            setAlreadyTriedRecipes(alreadyTried);
+        } catch (err) {
+            console.error(err);
+            setWarning('There was an error while creating the combinations. Please try with less elements.');
+        }
+
         setSuggestionsLoading('loaded');
+    }
+
+    function handleRemoveRecipeToTry(index: number) {
+        const newRecipesToTry = _.cloneDeep(recipesToTry);
+        newRecipesToTry?.splice(index, 1);
+        setRecipesToTry(newRecipesToTry);
     }
 
     return (
@@ -244,7 +257,7 @@ export default function InventPage() {
                     </div>
 
                     <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
-                        <Table size='small'>
+                        <Table size="small">
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Element</TableCell>
@@ -276,20 +289,18 @@ export default function InventPage() {
                         <div>Loading ...</div>
                     ) : suggestionsLoading === 'loaded' ? (
                         <>
-                            <Toolbar
-                                component={Paper}
-                                sx={{ maxWidth: 900, margin: '0 auto' }}
-                            >
+                            <Toolbar component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
                                 <Typography>No one tried these recipes yet. Count: {recipesToTryAmount}</Typography>
                             </Toolbar>
-                            <TableContainer
-                                component={Paper}
-                                sx={{ maxWidth: 900, margin: '0 auto' }}
-                            >
-                                <Table sx={{ maxWidth: 900 }} size='small'>
+                            <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
+                                <Table sx={{ maxWidth: 900 }} size="small">
                                     <TableBody>
                                         {recipesToTry?.map((recipe, i) => (
-                                            <RecipeRow key={i} recipe={recipe} />
+                                            <RecipeRow
+                                                key={i}
+                                                recipe={recipe}
+                                                onRemove={() => handleRemoveRecipeToTry(i)}
+                                            />
                                         ))}
                                     </TableBody>
                                 </Table>
@@ -297,17 +308,11 @@ export default function InventPage() {
 
                             <br />
 
-                            <Toolbar
-                                sx={{ maxWidth: 900, margin: '0 auto' }}
-                                component={Paper}
-                            >
+                            <Toolbar sx={{ maxWidth: 900, margin: '0 auto' }} component={Paper}>
                                 <Typography>These recipes were already tried</Typography>
                             </Toolbar>
-                            <TableContainer
-                                component={Paper}
-                                sx={{ maxWidth: 900, margin: '0 auto' }}
-                            >
-                                <Table sx={{ maxWidth: 900 }} size='small'>
+                            <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
+                                <Table sx={{ maxWidth: 900 }} size="small">
                                     <TableBody>
                                         {alreadyTriedRecipes?.map((recipe, i) => (
                                             <RecipeRow key={i} recipe={recipe} />
@@ -409,6 +414,7 @@ function ElementToGuessTableRow(props: ElementToGuessTableRowProps) {
 
 type RecipeRowProps = {
     recipe: Element[];
+    onRemove?: () => void;
 };
 
 function RecipeRow(props: RecipeRowProps) {
@@ -439,6 +445,13 @@ function RecipeRow(props: RecipeRowProps) {
                 </div>
             </TableCell>
             <TableCell>{_.sum(props.recipe.map((r) => r.price))} ELE</TableCell>
+            <TableCell>
+                {!_.isNil(props.onRemove) && (
+                    <Button onClick={props.onRemove}>
+                        <Delete />
+                    </Button>
+                )}
+            </TableCell>
         </TableRow>
     );
 }
