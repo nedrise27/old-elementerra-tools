@@ -84,6 +84,9 @@ export default function Home() {
             <div className={styles.Container}>
                 <main className={styles.Main}>
                     <Box className={styles.Inputs}>
+                        <h4 style={{ color: 'orange' }}>
+                            Due to new cNFT crystals using custodial staking now, this page is currently not working.
+                        </h4>
                         <WalletInput />
 
                         <FormControl sx={{ minWidth: '300px' }}>
@@ -110,7 +113,7 @@ export default function Home() {
                     {assetsLoadingState === 'initial' || assetsLoadingState === 'loaded' ? (
                         <>
                             <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
-                                <Table size='small' aria-label="ELE production table">
+                                <Table size="small" aria-label="ELE production table">
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Summary</TableCell>

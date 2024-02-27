@@ -12,11 +12,6 @@ export function Footer() {
                     </Link>
                 </div>
 
-                <div className={styles.Note}>
-                    Custom RPC endpoint. Please use in fair way:{' '}
-                    <strong>{process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT}</strong>
-                </div>
-
                 <span>
                     Made by{' '}
                     <a href="https://github.com/nedrise27?tab=repositories" target="_blank" rel="noreferrer">

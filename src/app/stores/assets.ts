@@ -37,7 +37,7 @@ type AssetsStore = {
 };
 
 const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || clusterApiUrl('mainnet-beta'));
-const helius = new Helius(process.env.NEXT_PUBLIC_HELIUS_API_KEY!);
+// const helius = new Helius(process.env.NEXT_PUBLIC_HELIUS_API_KEY!);
 const metaplex = Metaplex.make(connection);
 
 function isInCollection(nft: DAS.GetAssetResponse, collection: string): boolean {
@@ -63,142 +63,144 @@ async function getRabbitLevel(rabbit: DAS.GetAssetResponse): Promise<number> {
 
 export const useAssetStore = create<AssetsStore>((set, get) => {
     async function addWallet(ownerAddress: string) {
-        if (!_.isNil(get().wallets[ownerAddress])) {
-            return;
-        }
+        return; // TODO: find a way to get staked Crystals
 
-        set((state) => ({
-            ...state,
-            loadingState: 'loading',
-        }));
-
-        const limit = 1000;
-        let page = 1;
-        let sanityCheck = 0;
-        let fetched = 0;
-
-        let unburned: DAS.GetAssetResponse[] = [];
-
-        while (true) {
-            const res = await helius.rpc.getAssetsByOwner({
-                ownerAddress,
-                page,
-                limit,
-                displayOptions: {
-                    showGrandTotal: true,
-                },
-            });
-            unburned = [...unburned, ...res.items.filter((item) => !item.burnt)];
-            fetched += limit;
-
-            if (_.isNil(res.grand_total) || !_.isNumber(res.grand_total)) {
-                break;
-            }
-            if (fetched > res.grand_total) {
-                break;
-            }
-
-            if (sanityCheck > 20) {
-                break;
-            }
-            sanityCheck++;
-            page++;
-        }
-
-        const rabbitsRes = unburned.filter((item) => isInCollection(item, ELEMENTERRA_RABBITS_COLLECTION));
-
-        const rabbitLevels = await Promise.all(rabbitsRes.map(getRabbitLevel));
-
-        let rabbitsElePerHour = 0;
-        const rabbits: Stakable[] = [];
-        for (const [res, lvl] of _.zip(rabbitsRes, rabbitLevels)) {
-            if (!_.isNil(res) && !_.isNil(lvl)) {
-                const level = lvl.toString();
-                const elePerHour = RABBITS_ELE_PER_HOUR[level];
-                rabbitsElePerHour += elePerHour;
-                rabbits.push({ nft: res, level, elePerHour });
-            }
-        }
-
-        // const crystalsRes = unburned.filter(
-        //     (item) =>
-        //         isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION) ||
-        //         isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION2)
-        // );
-        let crystalsElePerHour = 0;
-        const crystals: Stakable[] = [];
-        // for (const crystal of crystalsRes) {
-        //     const level = crystal.content?.metadata?.attributes?.find((a) => a.trait_type == 'level')?.value!;
-        //     const elePerHour = CRYSTALS_ELE_PER_HOUR[level];
-        //     crystalsElePerHour += elePerHour;
-        //     crystals.push({
-        //         nft: crystal,
-        //         level,
-        //         elePerHour,
-        //     });
+        // if (!_.isNil(get().wallets[ownerAddress])) {
+        //     return;
         // }
-        const crystalsRes = await connection.getProgramAccounts(new PublicKey(ELEMENTERRA_PROGRAM_ID), {
-            encoding: 'base64',
-            filters: [
-                {
-                    memcmp: {
-                        offset: 0,
-                        bytes: '6BJNiWbhqnj',
-                    },
-                },
-                {
-                    memcmp: {
-                        offset: 9,
-                        bytes: ownerAddress,
-                    },
-                },
-            ],
-        });
 
-        for (const res of crystalsRes) {
-            const data = res.account.data;
+        // set((state) => ({
+        //     ...state,
+        //     loadingState: 'loading',
+        // }));
 
-            const first = data.subarray(0, 9);
-            // console.log(data.toString('hex'));
-            const second = encodeb58(data.subarray(9, 9 + 32));
-            console.log(second);
-        }
+        // const limit = 1000;
+        // let page = 1;
+        // let sanityCheck = 0;
+        // let fetched = 0;
 
-        const elements = unburned.filter((item) => isInCollection(item, ELEMENTERRA_ELEMENTS_COLLECTION));
+        // let unburned: DAS.GetAssetResponse[] = [];
 
-        const otherNFTs: Stakable[] = [];
-        let otherNFTsElePerHour = 0;
-        for (const nft of unburned) {
-            const collectionGroup = nft.grouping?.find((g) => g.group_key === 'collection');
-            if (!_.isNil(collectionGroup)) {
-                const collection = OTHER_STAKABLE_NFT_COLLECTIONS[collectionGroup.group_value];
-                if (!_.isNil(collection)) {
-                    otherNFTsElePerHour += collection.elePerHour;
-                    otherNFTs.push({
-                        nft,
-                        level: '',
-                        elePerHour: collection.elePerHour,
-                    });
-                }
-            }
-        }
+        // while (true) {
+        //     const res = await helius.rpc.getAssetsByOwner({
+        //         ownerAddress,
+        //         page,
+        //         limit,
+        //         displayOptions: {
+        //             showGrandTotal: true,
+        //         },
+        //     });
+        //     unburned = [...unburned, ...res.items.filter((item) => !item.burnt)];
+        //     fetched += limit;
 
-        set((state) => ({
-            ...state,
-            loadingState: 'loaded',
-            wallets: {
-                ...state.wallets,
-                [ownerAddress]: {
-                    rabbits,
-                    rabbitsElePerHour,
-                    crystals,
-                    crystalsElePerHour,
-                    otherNFTs,
-                    otherNFTsElePerHour,
-                    elements,
-                },
-            },
-        }));
+        //     if (_.isNil(res.grand_total) || !_.isNumber(res.grand_total)) {
+        //         break;
+        //     }
+        //     if (fetched > res.grand_total) {
+        //         break;
+        //     }
+
+        //     if (sanityCheck > 20) {
+        //         break;
+        //     }
+        //     sanityCheck++;
+        //     page++;
+        // }
+
+        // const rabbitsRes = unburned.filter((item) => isInCollection(item, ELEMENTERRA_RABBITS_COLLECTION));
+
+        // const rabbitLevels = await Promise.all(rabbitsRes.map(getRabbitLevel));
+
+        // let rabbitsElePerHour = 0;
+        // const rabbits: Stakable[] = [];
+        // for (const [res, lvl] of _.zip(rabbitsRes, rabbitLevels)) {
+        //     if (!_.isNil(res) && !_.isNil(lvl)) {
+        //         const level = lvl.toString();
+        //         const elePerHour = RABBITS_ELE_PER_HOUR[level];
+        //         rabbitsElePerHour += elePerHour;
+        //         rabbits.push({ nft: res, level, elePerHour });
+        //     }
+        // }
+
+        // // const crystalsRes = unburned.filter(
+        // //     (item) =>
+        // //         isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION) ||
+        // //         isInCollection(item, ELEMENTERRA_CRYSTALS_COLLECTION2)
+        // // );
+        // let crystalsElePerHour = 0;
+        // const crystals: Stakable[] = [];
+        // // for (const crystal of crystalsRes) {
+        // //     const level = crystal.content?.metadata?.attributes?.find((a) => a.trait_type == 'level')?.value!;
+        // //     const elePerHour = CRYSTALS_ELE_PER_HOUR[level];
+        // //     crystalsElePerHour += elePerHour;
+        // //     crystals.push({
+        // //         nft: crystal,
+        // //         level,
+        // //         elePerHour,
+        // //     });
+        // // }
+        // const crystalsRes = await connection.getProgramAccounts(new PublicKey(ELEMENTERRA_PROGRAM_ID), {
+        //     encoding: 'base64',
+        //     filters: [
+        //         {
+        //             memcmp: {
+        //                 offset: 0,
+        //                 bytes: '6BJNiWbhqnj',
+        //             },
+        //         },
+        //         {
+        //             memcmp: {
+        //                 offset: 9,
+        //                 bytes: ownerAddress,
+        //             },
+        //         },
+        //     ],
+        // });
+
+        // for (const res of crystalsRes) {
+        //     const data = res.account.data;
+
+        //     const first = data.subarray(0, 9);
+        //     // console.log(data.toString('hex'));
+        //     const second = encodeb58(data.subarray(9, 9 + 32));
+        //     console.log(second);
+        // }
+
+        // const elements = unburned.filter((item) => isInCollection(item, ELEMENTERRA_ELEMENTS_COLLECTION));
+
+        // const otherNFTs: Stakable[] = [];
+        // let otherNFTsElePerHour = 0;
+        // for (const nft of unburned) {
+        //     const collectionGroup = nft.grouping?.find((g) => g.group_key === 'collection');
+        //     if (!_.isNil(collectionGroup)) {
+        //         const collection = OTHER_STAKABLE_NFT_COLLECTIONS[collectionGroup.group_value];
+        //         if (!_.isNil(collection)) {
+        //             otherNFTsElePerHour += collection.elePerHour;
+        //             otherNFTs.push({
+        //                 nft,
+        //                 level: '',
+        //                 elePerHour: collection.elePerHour,
+        //             });
+        //         }
+        //     }
+        // }
+
+        // set((state) => ({
+        //     ...state,
+        //     loadingState: 'loaded',
+        //     wallets: {
+        //         ...state.wallets,
+        //         [ownerAddress]: {
+        //             rabbits,
+        //             rabbitsElePerHour,
+        //             crystals,
+        //             crystalsElePerHour,
+        //             otherNFTs,
+        //             otherNFTsElePerHour,
+        //             elements,
+        //         },
+        //     },
+        // }));
     }
 
     async function removeWallet(ownerAddress: string) {
