@@ -7,6 +7,7 @@ import { calculatePrice } from '../../lib/utils';
 import { ExtendedRecipe } from '../../pages/elements';
 import styles from '../../styles/Elements.module.css';
 import { useState } from 'react';
+import Link from 'next/link';
 
 type Props = {
     readonly key?: string;
@@ -18,61 +19,64 @@ type Props = {
 
 export function ElementCard(props: Props) {
     return (
-        <Paper
-            sx={{
-                width: '220px',
-                height: '220px',
-                padding: '.5rem',
-                opacity: '0.8',
-                ':hover': {
-                    opacity: 1,
-                },
-            }}
-            className={props.element.chestsAvailable ? styles.Active : ''}
-            onClick={() => props.onOpen?.(props.element.address)}
-        >
-            <div
-                style={{
-                    width: '100%',
-                    height: '100%',
+        <Link href={`/elements/${props.element.address}`}>
+            <Paper
+                sx={{
+                    width: '220px',
+                    height: '220px',
                     padding: '.5rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
+                    opacity: '0.8',
+                    ':hover': {
+                        opacity: 1,
+                    },
                 }}
+                className={props.element.chestsAvailable ? styles.Active : ''}
+                onClick={() => props.onOpen?.(props.element.address)}
             >
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div>
-                        <p>
-                            <strong style={{ whiteSpace: 'nowrap' }}>{props.element.name} </strong>T{props.element.tier}
-                        </p>
-                        <p>{props.element.invented ? 'invented' : 'not invented'}</p>
-                        {viewChestsCount(props.element)}
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        padding: '.5rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <div>
+                            <p>
+                                <strong style={{ whiteSpace: 'nowrap' }}>{props.element.name} </strong>T
+                                {props.element.tier}
+                            </p>
+                            <p>{props.element.invented ? 'invented' : 'not invented'}</p>
+                            {viewChestsCount(props.element)}
+                        </div>
+                        <Image
+                            className={!props.element.invented ? styles.Uninvented : ''}
+                            src={props.element.url}
+                            width={80}
+                            height={80}
+                            alt={`picture of ${props.element.name}`}
+                        />
                     </div>
-                    <Image
-                        className={!props.element.invented ? styles.Uninvented : ''}
-                        src={props.element.url}
-                        width={80}
-                        height={80}
-                        alt={`picture of ${props.element.name}`}
-                    />
-                </div>
 
-                <div className={styles.PriceContainer}>
-                    <p className={styles.Price}>{props.element.price ? `${props.element.price} ELE` : 'unkown'}</p>
-                    <p className={styles.Price}>
-                        {props.element.price
-                            ? `${calculatePrice(props.eleSolPrice, props.element.price)} SOL`
-                            : 'unkown'}
-                    </p>
-                    <p className={styles.Price}>
-                        {props.element.price
-                            ? `${calculatePrice(props.eleUsdcPrice, props.element.price)} USDC`
-                            : 'unkown'}
-                    </p>
+                    <div className={styles.PriceContainer}>
+                        <p className={styles.Price}>{props.element.price ? `${props.element.price} ELE` : 'unkown'}</p>
+                        <p className={styles.Price}>
+                            {props.element.price
+                                ? `${calculatePrice(props.eleSolPrice, props.element.price)} SOL`
+                                : 'unkown'}
+                        </p>
+                        <p className={styles.Price}>
+                            {props.element.price
+                                ? `${calculatePrice(props.eleUsdcPrice, props.element.price)} USDC`
+                                : 'unkown'}
+                        </p>
+                    </div>
                 </div>
-            </div>
-        </Paper>
+            </Paper>
+        </Link>
     );
 }
 
@@ -121,7 +125,6 @@ type ElementModalCardProps = {
     readonly extendedRecipes: ExtendedRecipe[];
     readonly eleSolPrice: number;
     readonly eleUsdcPrice: number;
-    readonly onClose: () => void;
 };
 
 export function ElementModalCard(props: ElementModalCardProps) {
@@ -139,7 +142,6 @@ export function ElementModalCard(props: ElementModalCardProps) {
     return (
         <Modal
             open={!_.isNil(props.element)}
-            onClose={props.onClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >

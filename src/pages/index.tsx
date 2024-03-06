@@ -26,53 +26,21 @@ import { useAssetStore } from '../app/stores/assets';
 import { useEleSolPriceStore, useEleUsdcPriceStore } from '../app/stores/prices';
 import styles from '../styles/Home.module.css';
 import { WalletInput } from '../app/components/WalletInput';
+import { DAS } from 'helius-sdk';
 
 export default function Home() {
     const wallets = useAssetStore((state) => state.wallets);
     const assetsLoadingState = useAssetStore((state) => state.loadingState);
 
-    const [rabbitsElePerHour, setRabbitsElePerHour] = useState<number>(0);
-    const [crystalsElePerHour, setCrystalsElePerHour] = useState<number>(0);
-    const [otherNFTsElePerHour, setOtherNFTsElePerHour] = useState<number>(0);
-
-    const eleSolPrice = useEleSolPriceStore((state) => state.price);
-    const refreshEleSolPrice = useEleSolPriceStore((state) => state.fetch);
-    const eleUsdcPrice = useEleUsdcPriceStore((state) => state.price);
-    const refreshEleUsdcPrice = useEleUsdcPriceStore((state) => state.fetch);
-
-    const [timeframe, setTimeframe] = useState<number>(1);
+    const [elements, setElements] = useState<DAS.GetAssetResponse[]>([]);
 
     useEffect(() => {
-        setRabbitsElePerHour(_.sum(Object.values(wallets).map((w) => w.rabbitsElePerHour)));
-        setCrystalsElePerHour(_.sum(Object.values(wallets).map((w) => w.crystalsElePerHour)));
-        setOtherNFTsElePerHour(_.sum(Object.values(wallets).map((w) => w.otherNFTsElePerHour)));
+        let els: DAS.GetAssetResponse[] = [];
+        for (const assets of Object.values(wallets)) {
+            els = [...els, ...assets.elements];
+        }
+        setElements(els);
     }, [wallets]);
-
-    useEffect(() => {
-        refreshEleSolPrice();
-        refreshEleUsdcPrice();
-    }, [refreshEleSolPrice, refreshEleUsdcPrice]);
-
-    function handleTimeframeChange(event: SelectChangeEvent<number>) {
-        event.preventDefault();
-        setTimeframe(_.toNumber(event.target.value));
-    }
-
-    function totalElePerHour() {
-        return rabbitsElePerHour + crystalsElePerHour + otherNFTsElePerHour;
-    }
-
-    function perTimeFrame(perHour: number) {
-        return _.round(timeframe * perHour, 8);
-    }
-
-    function eleInSol(ele: number) {
-        return ele * eleSolPrice;
-    }
-
-    function eleInUsdc(ele: number) {
-        return ele * eleUsdcPrice;
-    }
 
     return (
         <>
@@ -85,107 +53,12 @@ export default function Home() {
                 <main className={styles.Main}>
                     <Box className={styles.Inputs}>
                         <h4 style={{ color: 'orange' }}>
-                            Due to new cNFT crystals using custodial staking now, this page is currently not working.
+                            Due to new cNFT crystals using custodial staking now, income calculation is not working
+                            anymore.
                         </h4>
-                        <WalletInput />
-
-                        <FormControl sx={{ minWidth: '300px' }}>
-                            <InputLabel id="eleProductionTimeframeLabel">Timeframe</InputLabel>
-
-                            <Select
-                                labelId="eleProductionTimeframeLabel"
-                                aria-label="Timeframe"
-                                id="eleProductionTimeframe"
-                                value={timeframe}
-                                label="Timeframe"
-                                onChange={handleTimeframeChange}
-                            >
-                                <MenuItem value={1} selected>
-                                    One Hour
-                                </MenuItem>
-                                <MenuItem value={24}>One Day</MenuItem>
-                                <MenuItem value={168}>7 Days</MenuItem>
-                                <MenuItem value={720}>30 Days</MenuItem>
-                            </Select>
-                        </FormControl>
                     </Box>
-
-                    {assetsLoadingState === 'initial' || assetsLoadingState === 'loaded' ? (
-                        <>
-                            <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '0 auto' }}>
-                                <Table size="small" aria-label="ELE production table">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Summary</TableCell>
-                                            <TableCell>ELE/{timeframe}h</TableCell>
-                                            <TableCell>SOL/{timeframe}h</TableCell>
-                                            <TableCell>USDC/{timeframe}h</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell>Rabbits</TableCell>
-                                            <TableCell>{perTimeFrame(rabbitsElePerHour)} ELE</TableCell>
-                                            <TableCell>{perTimeFrame(eleInSol(rabbitsElePerHour))} SOL</TableCell>
-                                            <TableCell>{perTimeFrame(eleInUsdc(rabbitsElePerHour))} USDC</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell>Crystals</TableCell>
-                                            <TableCell>{perTimeFrame(crystalsElePerHour)} ELE</TableCell>
-                                            <TableCell>{perTimeFrame(eleInSol(crystalsElePerHour))} SOL</TableCell>
-                                            <TableCell>{perTimeFrame(eleInUsdc(crystalsElePerHour))} USDC</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell>Other NFTs</TableCell>
-                                            <TableCell>{perTimeFrame(otherNFTsElePerHour)} ELE</TableCell>
-                                            <TableCell>{perTimeFrame(eleInSol(otherNFTsElePerHour))} SOL</TableCell>
-                                            <TableCell>{perTimeFrame(eleInUsdc(otherNFTsElePerHour))} USDC</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell variant="head">All</TableCell>
-                                            <TableCell variant="head">{perTimeFrame(totalElePerHour())} ELE</TableCell>
-                                            <TableCell variant="head">
-                                                {perTimeFrame(eleInSol(totalElePerHour()))} SOL
-                                            </TableCell>
-                                            <TableCell variant="head">
-                                                {perTimeFrame(eleInUsdc(totalElePerHour()))} USDC
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-
-                            <br />
-
-                            <RabbitsTable
-                                rabbits={Object.values(wallets).flatMap((w) => w.rabbits)}
-                                eleSolPrice={eleSolPrice}
-                            />
-
-                            <br />
-
-                            <CrystalsTable
-                                crystals={Object.values(wallets).flatMap((w) => w.crystals)}
-                                eleSolPrice={eleSolPrice}
-                            />
-
-                            <br />
-
-                            <OtherNftsTable
-                                otherNfts={Object.values(wallets).flatMap((w) => w.otherNFTs)}
-                                eleSolPrice={eleSolPrice}
-                            />
-                        </>
-                    ) : (
-                        <>
-                            <h3>Loading ...</h3>
-                        </>
-                    )}
-                    <br />
                 </main>
             </div>
         </>
     );
 }
-
-// export default Home;

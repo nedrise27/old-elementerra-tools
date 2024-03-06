@@ -16,10 +16,11 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { stringSimilarity } from 'string-similarity-js';
 
 import { useConnection } from '@solana/wallet-adapter-react';
-import { ElementCard, ElementModalCard } from '../app/components/ElementCard';
-import { Header } from '../app/components/Header';
-import { Element, useElementsInfoStore } from '../app/stores/shopElements';
-import { getExtendedRecipe } from '../lib/utils';
+import { ElementCard, ElementModalCard } from '../../app/components/ElementCard';
+import { Header } from '../../app/components/Header';
+import { Element, useElementsInfoStore } from '../../app/stores/shopElements';
+import { getExtendedRecipe } from '../../lib/utils';
+import { useEleSolPriceStore, useEleUsdcPriceStore } from '../../app/stores/prices';
 
 export type ExtendedRecipe = Record<string, { element: Element; amount: number }>;
 
@@ -36,8 +37,10 @@ export default function Elments() {
 
     const [elementsDisplay, setElementsDisplay] = useState<Element[]>([]);
 
-    const [eleSolPrice, setEleSolPrice] = useState<number>(0);
-    const [eleUsdcPrice, setEleUsdcPrice] = useState<number>(0);
+    const eleSolPrice = useEleSolPriceStore((state) => state.price);
+    const refreshEleSolPrice = useEleSolPriceStore((state) => state.fetch);
+    const eleUsdcPrice = useEleUsdcPriceStore((state) => state.price);
+    const refreshEleUsdcPrice = useEleUsdcPriceStore((state) => state.fetch);
 
     const [ordering, setOrdering] = useState<Ordering>('tier:asc');
 
@@ -50,18 +53,6 @@ export default function Elments() {
     const [openedElement, setOpenedElement] = useState<Element | undefined>();
     const [openedElementAddress, setOpenedElementAddress] = useState<string | null>(null);
     const [openedElementRecipe, setOpenedElementRecipe] = useState<ExtendedRecipe[]>([]);
-
-    const fetchEleSolPrice = async () => {
-        const res = await fetch('https://price.jup.ag/v4/price?ids=ELE&vsToken=SOL');
-        const body = await res.json();
-        setEleSolPrice(body.data.ELE.price);
-    };
-
-    const fetchEleUsdcPrice = async () => {
-        const res = await fetch('https://price.jup.ag/v4/price?ids=ELE&vsToken=USDC');
-        const body = await res.json();
-        setEleUsdcPrice(body.data.ELE.price);
-    };
 
     useEffect(() => {
         const recipes = [];
@@ -143,8 +134,8 @@ export default function Elments() {
     }, [openedElementAddress, elementsRecord]);
 
     useEffect(() => {
-        fetchEleSolPrice();
-        fetchEleUsdcPrice();
+        refreshEleSolPrice();
+        refreshEleUsdcPrice();
         refetchElements(connection);
     }, [refetchElements]);
 
@@ -176,14 +167,6 @@ export default function Elments() {
         event.preventDefault();
         const query = event.target.value;
         setSearch(query);
-    }
-
-    function handleOpenElement(elementId: string) {
-        setOpenedElementAddress(elementId);
-    }
-
-    function handleCloseElement() {
-        setOpenedElementAddress(null);
     }
 
     return (
@@ -263,7 +246,6 @@ export default function Elments() {
                             element={e}
                             eleSolPrice={eleSolPrice}
                             eleUsdcPrice={eleUsdcPrice}
-                            onOpen={handleOpenElement}
                         />
                     ))}
                 </Grid>
@@ -274,7 +256,6 @@ export default function Elments() {
                 extendedRecipes={openedElementRecipe}
                 eleSolPrice={eleSolPrice}
                 eleUsdcPrice={eleUsdcPrice}
-                onClose={handleCloseElement}
             />
         </>
     );
