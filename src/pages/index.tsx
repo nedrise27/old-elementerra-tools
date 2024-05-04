@@ -18,7 +18,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
 import { useEleSolPriceStore, useEleUsdcPriceStore } from '../app/stores/prices';
-import { calculatePrice } from '../lib/utils';
+import { calculatePrice, toFixedNoTralingZeroes } from '../lib/utils';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
@@ -115,25 +115,42 @@ export default function Home() {
                                     <TableRow key="hour">
                                         <TableCell>Hour</TableCell>
                                         <TableCell>{elePerHour} ELE</TableCell>
-                                        <TableCell>{calculatePrice(eleUsdcPrice, elePerHour)} USDC</TableCell>
+                                        <TableCell>
+                                            {toFixedNoTralingZeroes(calculatePrice(eleUsdcPrice, elePerHour), 2)} USDC
+                                        </TableCell>
                                         <TableCell>{calculatePrice(eleSolPrice, elePerHour)} SOL</TableCell>
                                     </TableRow>
                                     <TableRow key="day">
                                         <TableCell>24 hours</TableCell>
                                         <TableCell>{elePerHour * 24} ELE</TableCell>
-                                        <TableCell>{calculatePrice(eleUsdcPrice, elePerHour * 24)} USDC</TableCell>
+                                        <TableCell>
+                                            {toFixedNoTralingZeroes(calculatePrice(eleUsdcPrice, elePerHour * 24), 2)}{' '}
+                                            USDC
+                                        </TableCell>
                                         <TableCell>{calculatePrice(eleSolPrice, elePerHour * 24)} SOL</TableCell>
                                     </TableRow>
                                     <TableRow key="week">
                                         <TableCell>7 days</TableCell>
                                         <TableCell>{elePerHour * 24 * 7} ELE</TableCell>
-                                        <TableCell>{calculatePrice(eleUsdcPrice, elePerHour * 24 * 7)} USDC</TableCell>
+                                        <TableCell>
+                                            {toFixedNoTralingZeroes(
+                                                calculatePrice(eleUsdcPrice, elePerHour * 24 * 7),
+                                                2
+                                            )}{' '}
+                                            USDC
+                                        </TableCell>
                                         <TableCell>{calculatePrice(eleSolPrice, elePerHour * 24 * 7)} SOL</TableCell>
                                     </TableRow>
                                     <TableRow key="month">
                                         <TableCell>30 days</TableCell>
                                         <TableCell>{elePerHour * 24 * 30} ELE</TableCell>
-                                        <TableCell>{calculatePrice(eleUsdcPrice, elePerHour * 24 * 30)} USDC</TableCell>
+                                        <TableCell>
+                                            {toFixedNoTralingZeroes(
+                                                calculatePrice(eleUsdcPrice, elePerHour * 24 * 30),
+                                                2
+                                            )}{' '}
+                                            USDC
+                                        </TableCell>
                                         <TableCell>{calculatePrice(eleSolPrice, elePerHour * 24 * 30)} SOL</TableCell>
                                     </TableRow>
                                 </TableBody>
