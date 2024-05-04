@@ -1,33 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useAssetStore } from '../app/stores/assets';
-import { Element, PADDING_ADDRESS, useElementsInfoStore } from '../app/stores/shopElements';
-import { useConnection } from '@solana/wallet-adapter-react';
-import _, { divide } from 'lodash';
-import Button from '@mui/material/Button';
-import { Header } from '../app/components/Header';
 import {
-    TableContainer,
+    Box,
+    FormControl,
     Paper,
     Table,
+    TableBody,
+    TableCell,
+    TableContainer,
     TableHead,
     TableRow,
-    TableCell,
-    TableBody,
-    FormControlLabel,
-    Box,
-    Checkbox,
-    FormControl,
-    FormGroup,
-    InputLabel,
-    MenuItem,
-    Select,
     TextField,
     Typography,
 } from '@mui/material';
-import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
+import Button from '@mui/material/Button';
+import { useConnection } from '@solana/wallet-adapter-react';
+import _ from 'lodash';
+import { useEffect, useState } from 'react';
+
 import { useChestPricesStore } from '../app/stores/prices';
-import { normalize, toFixedNoTralingZeroes } from '../lib/utils';
+import { Element, PADDING_ADDRESS, useElementsInfoStore } from '../app/stores/shopElements';
 import { CHESTS_AVARAGE_ELE_PER_HOUR } from '../lib/constants/chests';
+import { toFixedNoTralingZeroes } from '../lib/utils';
 
 type ElementsStats = {
     elementName: string;

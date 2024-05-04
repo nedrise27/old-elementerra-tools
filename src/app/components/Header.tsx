@@ -1,12 +1,10 @@
-import { AppBar, Button, TextField } from '@mui/material';
+import { AppBar } from '@mui/material';
 import _ from 'lodash';
 import Link from 'next/link';
 
+import { useEffect } from 'react';
 import styles from '../../styles/Header.module.css';
 import { useEleSolPriceStore, useEleUsdcPriceStore, useRabbitPriceStore } from '../stores/prices';
-import { FormEvent, useEffect, useState } from 'react';
-import { useAssetStore } from '../stores/assets';
-import { Delete } from '@mui/icons-material';
 
 export function Header() {
     const eleSolPrice = useEleSolPriceStore((state) => state.price);
@@ -26,7 +24,7 @@ export function Header() {
         <>
             <AppBar position="static" className={styles.AppBar}>
                 <nav className={styles.Navigation}>
-                    <Link href={'/'}>Home</Link>
+                    <Link href={'/'}>Calculator</Link>
                     <Link href={'/elements'}>Elements</Link>
                     <Link href={'/invent'}>Invent</Link>
                     <Link href={'/chasing-chests'}>Chasing Chests</Link>

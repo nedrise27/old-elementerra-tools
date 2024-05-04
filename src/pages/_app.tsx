@@ -1,5 +1,4 @@
 import { ThemeProvider, createTheme } from '@mui/material';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider } from '@solana/wallet-adapter-react';
 import { clusterApiUrl } from '@solana/web3.js';
 import type { AppProps } from 'next/app';
@@ -23,9 +22,6 @@ export const ELEMENTERRA_CRYSTALS_COLLECTION2 = 'GsWtWwZLkS9Ee9Rb13MuTG3JfQx3nhh
 export const ELEMENTERRA_ELEMENTS_COLLECTION = 'CdES51P2ThUZsgAeqFG42k59QchQMWBR9hLLeUGeB2gL';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-    // Can be set to 'devnet', 'testnet', or 'mainnet-beta'
-    const network = WalletAdapterNetwork.Devnet;
-
     // You can also provide a custom RPC endpoint
     const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || clusterApiUrl('mainnet-beta');
 

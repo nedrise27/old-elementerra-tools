@@ -19,7 +19,7 @@ type Props = {
 
 export function ElementCard(props: Props) {
     return (
-        <Link href={`/elements/${props.element.address}`}>
+        <Link href={`/element?elementId=${props.element.address}`}>
             <Paper
                 sx={{
                     width: '220px',

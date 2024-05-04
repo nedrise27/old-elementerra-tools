@@ -1,22 +1,22 @@
+import { Box, Divider, InputLabel, TextField, Typography } from '@mui/material';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { useRouter } from 'next/router';
-import { Element, useElementsInfoStore } from '../../app/stores/shopElements';
-import { useEffect, useState } from 'react';
-import _ from 'lodash';
-import { Box, Divider, InputLabel, Paper, TextField, Typography } from '@mui/material';
-import { amount } from '@metaplex-foundation/js';
-import { calculatePrice, getExtendedRecipe } from '../../lib/utils';
-import Image from 'next/image';
-import { ExtendedRecipe } from '.';
-import { useEleSolPriceStore, useEleUsdcPriceStore } from '../../app/stores/prices';
-import styles from '../../styles/Elements.module.css';
 import { DAS } from 'helius-sdk';
-import { useAssetStore } from '../../app/stores/assets';
-import { WalletInput } from '../../app/components/WalletInput';
-import { ExtendedRecipeRow } from '../../app/components/ExtendedRecipeRow';
+import _ from 'lodash';
+import { Params } from 'next/dist/shared/lib/router/utils/route-matcher';
+import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-export default function Page() {
-    const router = useRouter();
+import { ExtendedRecipeRow } from '../../app/components/ExtendedRecipeRow';
+import { WalletInput } from '../../app/components/WalletInput';
+import { useAssetStore } from '../../app/stores/assets';
+import { useEleSolPriceStore, useEleUsdcPriceStore } from '../../app/stores/prices';
+import { Element, useElementsInfoStore } from '../../app/stores/shopElements';
+import { calculatePrice, getExtendedRecipe } from '../../lib/utils';
+import styles from '../../styles/Elements.module.css';
+import { ExtendedRecipe } from '../elements';
+
+export default function Page(params: Params) {
     const { connection } = useConnection();
 
     const eleSolPrice = useEleSolPriceStore((state) => state.price);
@@ -57,10 +57,12 @@ export default function Page() {
         refreshEleSolPrice();
         refreshEleUsdcPrice();
         refetchElements(connection);
-    }, [refetchElements]);
+    }, [connection]);
+
+    const searchParams = useSearchParams();
 
     useEffect(() => {
-        const elementId = router.query.elementId;
+        const elementId = searchParams?.get('elementId');
         if (!_.isNil(elementId) && _.isString(elementId)) {
             const el = elementsRecord[elementId];
             if (!_.isNil(el)) {
@@ -68,7 +70,7 @@ export default function Page() {
                 setExtendedRecipe(getExtendedRecipe(el, elementsRecord));
             }
         }
-    }, [elementsRecord]);
+    }, [elementsRecord, searchParams]);
 
     return (
         <>
