@@ -13,8 +13,8 @@ import {
 import _ from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
-import { Header } from '../app/components/Header';
-import styles from '../styles/Feed.module.css';
+import { Header } from '../../app/components/Header';
+import styles from '../../styles/Feed.module.css';
 
 export enum EventTopics {
     inventing = 'inventing',

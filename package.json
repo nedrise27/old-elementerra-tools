@@ -35,17 +35,23 @@
         "test:watch": "vitest watch"
     },
     "dependencies": {
+        "@coral-xyz/borsh": "^0.30.0",
         "@emotion/react": "^11.11.3",
         "@emotion/styled": "^11.11.0",
         "@metaplex-foundation/js": "*",
-        "@metaplex-foundation/mpl-token-metadata": "*",
+        "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
+        "@metaplex-foundation/umi": "^0.9.1",
+        "@metaplex-foundation/umi-bundle-defaults": "^0.9.1",
         "@mui/icons-material": "^5.15.6",
         "@mui/material": "^5.15.6",
+        "@solana/spl-account-compression": "^0.2.1",
+        "@solana/spl-token": "^0.4.6",
         "@solana/wallet-adapter-base": "*",
-        "@solana/wallet-adapter-react": "*",
+        "@solana/wallet-adapter-react": "^0.15.35",
         "@solana/wallet-adapter-react-ui": "*",
         "@solana/wallet-adapter-wallets": "*",
-        "@solana/web3.js": "^1.89.1",
+        "@solana/web3.js": "^1.91.8",
+        "bn.js": "^5.2.1",
         "bs58": "^5.0.0",
         "helius-sdk": "^1.0.15",
         "lodash": "^4.17.21",
@@ -58,6 +64,7 @@
     },
     "devDependencies": {
         "@testing-library/react": "^14.2.1",
+        "@types/bn.js": "^5.1.5",
         "@types/lodash": "^4.14.202",
         "@types/node-fetch": "^2.6.4",
         "@types/react": "^18.2.13",
@@ -68,7 +75,7 @@
         "jsdom": "^24.0.0",
         "prettier": "^2.8.8",
         "shx": "^0.3.4",
-        "typescript": "~4.7.4",
+        "typescript": "^5.4.5",
         "vitest": "^1.2.2"
     }
 }

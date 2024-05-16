@@ -18,9 +18,9 @@ import { useConnection } from '@solana/wallet-adapter-react';
 import _ from 'lodash';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { Header } from '../app/components/Header';
-import { Element, useElementsInfoStore } from '../app/stores/shopElements';
-import styles from '../styles/Invent.module.css';
+import { Element, useElementsInfoStore } from '../../app/stores/shopElements';
+import styles from '../../styles/Invent.module.css';
+import { ElementCardSmall } from '../../app/components/ElementCardSmall';
 
 export type ElementToGuess = {
     element: Element;
@@ -200,7 +200,7 @@ export default function InventPage() {
 
                     <Grid container spacing={1} gap={1.5} justifyContent={'center'}>
                         {notInventedElements.map((e) => (
-                            <ElementCard key={e.address} element={e} onClick={handleSelectElementToInvent} />
+                            <ElementCardSmall key={e.address} element={e} onClick={handleSelectElementToInvent} />
                         ))}
                     </Grid>
                 </Box>
@@ -232,7 +232,7 @@ export default function InventPage() {
 
                     <Grid container spacing={1} gap={1.5} justifyContent={'center'}>
                         {elementsToPick.map((e) => (
-                            <ElementCard key={e.address} element={e} onClick={handleAddElementToGuess} />
+                            <ElementCardSmall key={e.address} element={e} onClick={handleAddElementToGuess} />
                         ))}
                     </Grid>
 
@@ -325,45 +325,6 @@ export default function InventPage() {
 
             <div style={{ height: '4rem' }}></div>
         </>
-    );
-}
-
-type ElementCardProps = {
-    element: Element;
-    onClick: (elementId: string) => void;
-};
-
-function ElementCard(props: ElementCardProps) {
-    return (
-        <Paper
-            sx={{
-                width: '90px',
-                height: '90px',
-                border: '1px solid rgba(100, 100, 100, 0.7)',
-                opacity: '0.8',
-                ':hover': {
-                    opacity: 1,
-                },
-            }}
-            onClick={() => props.onClick?.(props.element.address)}
-        >
-            <div
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                }}
-            >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div>
-                        {props.element.name} T{props.element.tier}
-                    </div>
-                    <Image src={props.element.url} width={40} height={40} alt={`picture of ${props.element.name}`} />
-                </div>
-            </div>
-        </Paper>
     );
 }
 

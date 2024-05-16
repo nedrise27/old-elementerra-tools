@@ -28,12 +28,14 @@ export type Element = {
 type ElementsInfoState = {
     elements: Element[];
     elementsRecord: Record<string, Element>;
+    elementsRecordName: Record<string, Element>;
     fetch: (connection: Connection) => Promise<void>;
 };
 
 export const useElementsInfoStore = create<ElementsInfoState>((set) => ({
     elements: [],
     elementsRecord: {},
+    elementsRecordName: {},
     fetch: async (connection: Connection) => {
         const assets = await connection.getProgramAccounts(new PublicKey(ELEMENTERRA_PROGRAM_ID), {
             filters: [{ memcmp: { offset: 0, bytes: 'Qhcg1qqD1g9' } }],
@@ -117,6 +119,10 @@ export const useElementsInfoStore = create<ElementsInfoState>((set) => ({
                 };
             });
 
-        set({ elementsRecord: Object.fromEntries(elements.map((e) => [e.address, e])), elements });
+        set({
+            elementsRecord: Object.fromEntries(elements.map((e) => [e.address, e])),
+            elementsRecordName: Object.fromEntries(elements.map((e) => [e.name.replace(' ', ''), e])),
+            elements,
+        });
     },
 }));

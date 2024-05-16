@@ -54,11 +54,6 @@ export default function Home() {
 
     return (
         <>
-            <Head>
-                <title>Elementerra tools</title>
-                <meta name="description" content="Tools for Elementerra.io players, created by @nedrise." />
-            </Head>
-
             <div className={styles.Container}>
                 <main className={styles.Main}>
                     <Typography sx={{ marginTop: '2rem' }} variant="h6" component="h2">

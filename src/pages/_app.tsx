@@ -1,10 +1,14 @@
 import { ThemeProvider, createTheme } from '@mui/material';
-import { ConnectionProvider } from '@solana/wallet-adapter-react';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { clusterApiUrl } from '@solana/web3.js';
 import type { AppProps } from 'next/app';
 import { Footer } from '../app/components/Footer';
 import { Header } from '../app/components/Header';
 import styles from '../styles/App.module.css';
+import Head from 'next/head';
+import { useMemo } from 'react';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 
 // Use require instead of import since order matters
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -31,15 +35,27 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         },
     });
 
+    const wallets = useMemo(() => [], [endpoint]);
+
     return (
-        <ThemeProvider theme={darkTheme}>
-            <ConnectionProvider endpoint={endpoint}>
-                <Header />
-                <div className={styles.App}>
-                    <Component {...pageProps} />
-                </div>
-                <Footer />
-            </ConnectionProvider>
-        </ThemeProvider>
+        <>
+            <Head>
+                <title>Elementerra tools</title>
+                <meta name="description" content="Tools for Elementerra.io players, created by @nedrise." />
+            </Head>
+            <ThemeProvider theme={darkTheme}>
+                <ConnectionProvider endpoint={endpoint}>
+                    <WalletProvider wallets={wallets} autoConnect>
+                        <WalletModalProvider>
+                            <Header />
+                            <div className={styles.App}>
+                                <Component {...pageProps} />
+                            </div>
+                            <Footer />
+                        </WalletModalProvider>
+                    </WalletProvider>
+                </ConnectionProvider>
+            </ThemeProvider>
+        </>
     );
 }

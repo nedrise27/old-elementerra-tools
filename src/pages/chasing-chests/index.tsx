@@ -16,10 +16,10 @@ import { useConnection } from '@solana/wallet-adapter-react';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { useChestPricesStore } from '../app/stores/prices';
-import { Element, PADDING_ADDRESS, useElementsInfoStore } from '../app/stores/shopElements';
-import { CHESTS_AVARAGE_ELE_PER_HOUR } from '../lib/constants/chests';
-import { toFixedNoTralingZeroes } from '../lib/utils';
+import { useChestPricesStore } from '../../app/stores/prices';
+import { Element, PADDING_ADDRESS, useElementsInfoStore } from '../../app/stores/shopElements';
+import { CHESTS_AVARAGE_ELE_PER_HOUR } from '../../lib/constants/chests';
+import { toFixedNoTralingZeroes } from '../../lib/utils';
 
 type ElementsStats = {
     elementName: string;
