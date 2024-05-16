@@ -38,12 +38,14 @@ type RabbitWithLevel = {
 
 type LevelingError = null | 'no-ele' | 'no-element' | 'wallet-not-connected' | 'rabbit-not-selected';
 
+const levelUpWhitelist = process.env.NEXT_PUBLIC_LEVEL_UP_WHITELIST?.split(',') || [];
+
 export default function LevelingPage() {
     const { connection } = useConnection();
     const helius = new RpcClient(connection, 'elementerra-tools');
     const umi = createUmi(connection).use(mplTokenMetadata());
 
-    const { publicKey, sendTransaction, connected, disconnecting } = useWallet();
+    const { publicKey, sendTransaction, connecting, connected, disconnecting } = useWallet();
 
     const elements = useElementsInfoStore((state) => state.elements);
     const refetchElements = useElementsInfoStore((state) => state.fetch);
@@ -52,7 +54,6 @@ export default function LevelingPage() {
 
     const [selectedRabbitId, setSelectedRabbitId] = useState<string>();
     const [selectedLevel, setSelectedLevel] = useState<NftLevelAttributes>();
-    const [selectedLevelAttributesAddress, setSelectedLevelAttributesAddress] = useState<PublicKey>();
 
     const [elementsInWallet, setElementsInWallet] = useState<DAS.GetAssetResponse[]>([]);
     const [eleInWallet, setEleInWallet] = useState<number>(0);
@@ -61,6 +62,8 @@ export default function LevelingPage() {
     const [errorMsg, setErrorMsg] = useState('');
 
     const [status, setStatus] = useState('');
+
+    const [locked, setLocked] = useState(true);
 
     async function fetchRabbits() {
         if (!publicKey) return;
@@ -160,6 +163,15 @@ export default function LevelingPage() {
     }, [publicKey, connection]);
 
     useEffect(() => {
+        setLocked(true);
+        if (publicKey) {
+            if (levelUpWhitelist.includes(publicKey.toString())) {
+                setLocked(false);
+            }
+        }
+    }, [publicKey, connected, connecting, disconnecting]);
+
+    useEffect(() => {
         if (!connected || disconnecting) {
             setSelectedRabbitId(undefined);
             setSelectedLevel(undefined);
@@ -177,7 +189,6 @@ export default function LevelingPage() {
         const { level, levelAttributesAddress } = rabbitsWithLevel.find(({ rabbit }) => rabbit.id === id)!;
         setSelectedRabbitId(id);
         setSelectedLevel(level);
-        setSelectedLevelAttributesAddress(levelAttributesAddress);
     }
 
     function selectedRabbit(): DAS.GetAssetResponse | undefined {
@@ -200,7 +211,6 @@ export default function LevelingPage() {
 
             const [currentLevel, currentLevelAddress] = await fetchLevel(selectedRabbitId!);
             setSelectedLevel(currentLevel);
-            setSelectedLevelAttributesAddress(currentLevelAddress);
 
             if (!publicKey) {
                 setError('wallet-not-connected');
@@ -321,47 +331,57 @@ export default function LevelingPage() {
                     </Box>
                 </Box>
 
-                <h2>Rabbits</h2>
-                <ul>
-                    {rabbitsWithLevel.map(({ rabbit, level }) => (
-                        <li key={rabbit.id}>
-                            <Button variant="outlined" onClick={() => selectRabbit(rabbit.id)}>
-                                {rabbit.content?.metadata.name} Lvl: {level.level}
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
+                {locked ? (
+                    <>
+                        <h2>This feature is currently only available for community members</h2>
+                        <p>If you want to use it, hit me up on our discord @nedrise</p>
+                    </>
+                ) : (
+                    <>
+                        <h2>Rabbits</h2>
+                        <ul>
+                            {rabbitsWithLevel.map(({ rabbit, level }) => (
+                                <li key={rabbit.id}>
+                                    <Button variant="outlined" onClick={() => selectRabbit(rabbit.id)}>
+                                        {rabbit.content?.metadata.name} Lvl: {level.level}
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
 
-                {selectedRabbit() && selectedLevel && (
-                    <div>
-                        <h2>
-                            Leveling {selectedRabbit()!.content?.metadata.name} next level {selectedLevel.level + 1}
-                        </h2>
-
-                        {error && (
+                        {selectedRabbit() && selectedLevel && (
                             <div>
-                                <Typography color="#ff0000">{errorMsg}</Typography>
-                                <Button variant="contained" onClick={levelUp}>
-                                    Retry
-                                </Button>
+                                <h2>
+                                    Leveling {selectedRabbit()!.content?.metadata.name} next level{' '}
+                                    {selectedLevel.level + 1}
+                                </h2>
+
+                                {error && (
+                                    <div>
+                                        <Typography color="#ff0000">{errorMsg}</Typography>
+                                        <Button variant="contained" onClick={levelUp}>
+                                            Retry
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {selectedLevel.level === 100 ? (
+                                    <p>Level 100 reached</p>
+                                ) : (
+                                    <Box sx={{ display: 'flex', gap: '1rem' }}>
+                                        <Button variant="contained" onClick={levelUp} disabled={!!error}>
+                                            Level Up
+                                        </Button>
+                                    </Box>
+                                )}
                             </div>
                         )}
 
-                        {selectedLevel.level === 100 ? (
-                            <p>Level 100 reached</p>
-                        ) : (
-                            <Box sx={{ display: 'flex', gap: '1rem' }}>
-                                <Button variant="contained" onClick={levelUp} disabled={!!error}>
-                                    Level Up
-                                </Button>
-                            </Box>
-                        )}
-                    </div>
+                        <Box>
+                            <h4>{status}</h4>
+                        </Box>
+                    </>
                 )}
-
-                <Box>
-                    <h4>{status}</h4>
-                </Box>
             </Container>
         </>
     );
