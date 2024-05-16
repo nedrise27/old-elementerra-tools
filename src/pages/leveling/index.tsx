@@ -2,7 +2,7 @@ import { PublicKey } from '@metaplex-foundation/js';
 import { findMetadataPda, mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { publicKey as toPublicKey } from '@metaplex-foundation/umi-public-keys';
-import { Button, Container } from '@mui/material';
+import { Button, Container, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { ConcurrentMerkleTreeAccount } from '@solana/spl-account-compression';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -188,6 +188,7 @@ export default function LevelingPage() {
         while (true) {
             setStatus('Refreshing wallet ...');
             await refreshAll();
+            await fetchEleBalance();
 
             resetErrors();
 
@@ -339,7 +340,7 @@ export default function LevelingPage() {
 
                         {error && (
                             <div>
-                                <p>{errorMsg}</p>
+                                <Typography color="#ff0000">{errorMsg}</Typography>
                                 <Button variant="contained" onClick={levelUp}>
                                     Retry
                                 </Button>

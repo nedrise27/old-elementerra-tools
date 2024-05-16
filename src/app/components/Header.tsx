@@ -30,6 +30,7 @@ export function Header() {
                     <Link href={'/chasing-chests'}>Chasing Chests</Link>
                     <Link href={'/roi'}>Roi Tables</Link>
                     <Link href={'/feed'}>Forging Feed</Link>
+                    <Link href={'/leveling'}>Level Up</Link>
                 </nav>
 
                 <div className={styles.HeaderInfo}>
