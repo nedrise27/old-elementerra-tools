@@ -7,31 +7,29 @@ import { Box } from '@mui/system';
 import { ConcurrentMerkleTreeAccount } from '@solana/spl-account-compression';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import {
-    AddressLookupTableAccount,
-    ComputeBudgetProgram,
-    TransactionMessage,
-    VersionedTransaction,
-} from '@solana/web3.js';
+import { ComputeBudgetProgram, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { DAS, RpcClient } from 'helius-sdk';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+
 import { Element, useElementsInfoStore } from '../../app/stores/shopElements';
 import { buildLevelUpIx, getElementumTokenAddress } from '../../lib/buildLevelUpIx';
 import { RAW_RABBIT_LEVEL_INFO } from '../../lib/constants';
 import { NftLevelAttributes } from '../../lib/elementerra-program/accounts';
+import { asyncSleep } from '../../lib/utils';
 import {
     ELEMENTERRA_CREATORS,
     ELEMENTERRA_ELEMENTS_COLLECTION,
+    ELEMENTERRA_INVENTOR_COLLECTION,
     ELEMENTERRA_PROGRAM_ID,
     ELEMENTERRA_RABBITS_COLLECTION,
 } from '../_app';
-import { asyncSleep } from '../../lib/utils';
-import _ from 'lodash';
 
 export const COMPUTE_UNIT_LIMIT = 1000000;
+export const TRANSACTION_FEE = 50000;
 
 type RabbitWithLevel = {
     rabbit: DAS.GetAssetResponse;
+    isInventor: boolean;
     level: NftLevelAttributes;
     levelAttributesAddress: PublicKey;
 };
@@ -89,11 +87,38 @@ export default function LevelingPage() {
 
                 const [levelAttributes, levelPda] = await fetchLevel(address);
 
-                _rabbitsWithLevel.push({ rabbit, level: levelAttributes!, levelAttributesAddress: levelPda });
+                _rabbitsWithLevel.push({
+                    rabbit,
+                    level: levelAttributes!,
+                    levelAttributesAddress: levelPda,
+                    isInventor: false,
+                });
             }
 
             page++;
             done = res.items.length < limit;
+        }
+
+        const inventorRes = await helius.searchAssets({
+            ownerAddress: publicKey?.toString(),
+            creatorAddress: ELEMENTERRA_CREATORS[1],
+            grouping: ['collection', ELEMENTERRA_INVENTOR_COLLECTION],
+            burnt: false,
+            page: 1,
+            limit: 100,
+        });
+
+        for (const rabbit of inventorRes.items) {
+            const address = rabbit.id;
+
+            const [levelAttributes, levelPda] = await fetchLevel(address);
+
+            _rabbitsWithLevel.push({
+                rabbit,
+                level: levelAttributes!,
+                levelAttributesAddress: levelPda,
+                isInventor: true,
+            });
         }
 
         setRabbitsWithLevel(_rabbitsWithLevel);
@@ -284,7 +309,7 @@ export default function LevelingPage() {
                         units: COMPUTE_UNIT_LIMIT,
                     }),
                     ComputeBudgetProgram.setComputeUnitPrice({
-                        microLamports: 100000,
+                        microLamports: TRANSACTION_FEE,
                     }),
                     ix,
                 ],

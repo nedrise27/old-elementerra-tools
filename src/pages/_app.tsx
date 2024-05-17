@@ -1,14 +1,13 @@
 import { ThemeProvider, createTheme } from '@mui/material';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 import type { AppProps } from 'next/app';
+import Head from 'next/head';
+import { useMemo } from 'react';
 import { Footer } from '../app/components/Footer';
 import { Header } from '../app/components/Header';
 import styles from '../styles/App.module.css';
-import Head from 'next/head';
-import { useMemo } from 'react';
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 
 // Use require instead of import since order matters
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -21,6 +20,7 @@ export const ELEMENTERRA_CREATORS = [
 ];
 
 export const ELEMENTERRA_RABBITS_COLLECTION = '4n4zLe1BcREy9XQyHwSMJJHR4YHn7AgP2dx4jL6X8GGR';
+export const ELEMENTERRA_INVENTOR_COLLECTION = 'BsoRSTtiE4DSuNXTkwjTjnZADKa9fWct8a4CncaUYdDD';
 export const ELEMENTERRA_CRYSTALS_COLLECTION = 'C2Frjbg6DosmE3GSbb8veTxGg8H7kS73FzduYh3b8er9';
 export const ELEMENTERRA_CRYSTALS_COLLECTION2 = 'GsWtWwZLkS9Ee9Rb13MuTG3JfQx3nhh16ps36ZNEPcdW';
 export const ELEMENTERRA_ELEMENTS_COLLECTION = 'CdES51P2ThUZsgAeqFG42k59QchQMWBR9hLLeUGeB2gL';
