@@ -25,7 +25,7 @@ import {
 } from '../_app';
 
 export const COMPUTE_UNIT_LIMIT = 1000000;
-export const TRANSACTION_FEE = 50000;
+export const TRANSACTION_FEE = 80000;
 
 type RabbitWithLevel = {
     rabbit: DAS.GetAssetResponse;
@@ -36,7 +36,7 @@ type RabbitWithLevel = {
 
 type LevelingError = null | 'no-ele' | 'no-element' | 'wallet-not-connected' | 'rabbit-not-selected';
 
-const levelUpWhitelist = process.env.NEXT_PUBLIC_LEVEL_UP_WHITELIST?.split(',') || [];
+export const levelUpWhitelist = process.env.NEXT_PUBLIC_LEVEL_UP_WHITELIST?.split(',') || [];
 
 export default function LevelingPage() {
     const { connection } = useConnection();
@@ -342,18 +342,6 @@ export default function LevelingPage() {
             <Container maxWidth="lg" sx={{ padding: '1rem', boxSizing: 'border-box' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
                     <h1>Level up</h1>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'end',
-                            alignItems: 'center',
-                            gap: '1rem',
-                            flexWrap: 'wrap',
-                        }}
-                    >
-                        <WalletMultiButton />
-                        <WalletDisconnectButton />
-                    </Box>
                 </Box>
 
                 {locked ? (

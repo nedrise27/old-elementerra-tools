@@ -28,7 +28,7 @@ import {
     TREE_AUTHORITY,
 } from './constants';
 
-function getPlayerPDA(payer: PublicKey): PublicKey {
+export function getPlayerPDA(payer: PublicKey): PublicKey {
     const [pda] = PublicKey.findProgramAddressSync(
         [Buffer.from(`player_${SEASON_NUMBER}`), payer.toBytes()],
         PROGRAM_ID

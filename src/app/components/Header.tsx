@@ -1,10 +1,11 @@
-import { AppBar } from '@mui/material';
+import { AppBar, Box } from '@mui/material';
 import _ from 'lodash';
 import Link from 'next/link';
 
 import { useEffect } from 'react';
 import styles from '../../styles/Header.module.css';
 import { useEleSolPriceStore, useEleUsdcPriceStore, useRabbitPriceStore } from '../stores/prices';
+import { WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export function Header() {
     const eleSolPrice = useEleSolPriceStore((state) => state.price);
@@ -31,6 +32,9 @@ export function Header() {
                     <Link href={'/roi'}>Roi Tables</Link>
                     <Link href={'/feed'}>Forging Feed</Link>
                     <Link href={'/leveling'}>Level Up</Link>
+                    <Link href={'/buy-elements'}>Buy Elements</Link>
+                    <WalletMultiButton />
+                    <WalletDisconnectButton />
                 </nav>
 
                 <div className={styles.HeaderInfo}>
