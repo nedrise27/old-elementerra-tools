@@ -25,7 +25,7 @@ import {
 } from '../_app';
 
 export const COMPUTE_UNIT_LIMIT = 1000000;
-export const TRANSACTION_FEE = 80000;
+export const TRANSACTION_FEE = 50000;
 
 type RabbitWithLevel = {
     rabbit: DAS.GetAssetResponse;
@@ -149,8 +149,8 @@ export default function LevelingPage() {
                 creatorAddress: ELEMENTERRA_CREATORS[1],
                 grouping: ['collection', ELEMENTERRA_ELEMENTS_COLLECTION],
                 burnt: false,
-                page: 1,
-                limit: 1000,
+                page,
+                limit,
             });
 
             _walletElements = [..._walletElements, ...res.items];

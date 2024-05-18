@@ -42,3 +42,7 @@ export const PACK_MERKLE_TREE = new PublicKey('5soqPsikPLnpRwrxFXebGxEzPssN7w6vU
 export const PACK_COLLECTION_MINT = new PublicKey('5LkHs8vFFkjgN6pnmPsvgUDn9iN4yj8h2qSoejuHtKoJ');
 export const PACK_COLLECTION_METADATA = new PublicKey('5QRmyNo1bCaWgX9hJHDVfrDHnCa8sYKmfu3dTuYEegci');
 export const PACK_COLLECTION_MASTER_EDITION = new PublicKey('Bz7vRf1kG3VFhM3eHRGoEJGe2Wu9jpw7ZkMGgqBaXYMt');
+
+export const CRYSTAL_MERKLE_TREE = new PublicKey('5soqPsikPLnpRwrxFXebGxEzPssN7w6vUD5CDt8MHuGX');
+export const CRYSTAL_STAKING_POOL = new PublicKey('Cgig1KrCVH5PBCTnCwkFwsDYDvFCvYuKQ7tz7ZjFiwJi');
+export const CRYSTAL_TREE_AUTHORITY = new PublicKey('3CjL2c94VXhjxqdSgNV7pSFPJfLZSFp6FnDZxjrrMuUB');

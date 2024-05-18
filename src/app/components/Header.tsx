@@ -33,6 +33,7 @@ export function Header() {
                     <Link href={'/feed'}>Forging Feed</Link>
                     <Link href={'/leveling'}>Level Up</Link>
                     <Link href={'/buy-elements'}>Buy Elements</Link>
+                    <Link href={'/crystals-stake'}>Crystals Stake</Link>
                     <WalletMultiButton />
                     <WalletDisconnectButton />
                 </nav>

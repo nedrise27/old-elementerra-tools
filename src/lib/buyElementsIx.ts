@@ -3,6 +3,7 @@ import { PublicKey, TransactionInstruction } from '@solana/web3.js';
 
 import { buyElement } from './elementerra-program/instructions';
 
+import { getElementumTokenAddress, getPlayerPDA } from './buildLevelUpIx';
 import {
     BUBBLEGUM_PROGRAM,
     BUBBLEGUM_SIGNER,
@@ -17,12 +18,10 @@ import {
     METAPLEX_TOKEN_METADATA_PROGRAM,
     RENT_PROGRAM,
     SEASON,
-    SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
     STATE_COMPRESSION_PROGRAM,
     SYSTEM_PROGRAM,
     TREE_AUTHORITY,
 } from './constants';
-import { getElementumTokenAddress, getPlayerPDA } from './buildLevelUpIx';
 import { ElementName, ElementNameJSON, ElementNameKind } from './elementerra-program/types';
 
 export function getElementNameKindByName(name: string): ElementNameKind {
@@ -31,11 +30,7 @@ export function getElementNameKindByName(name: string): ElementNameKind {
     } as ElementNameJSON);
 }
 
-export function buildBuyElementTransaction(
-    payer: PublicKey,
-    elementName: string,
-    elementId: PublicKey
-): TransactionInstruction {
+export function buildBuyElementIx(payer: PublicKey, elementName: string, elementId: PublicKey): TransactionInstruction {
     const element = getElementNameKindByName(elementName);
 
     const eleTokenAccount = getElementumTokenAddress(payer);

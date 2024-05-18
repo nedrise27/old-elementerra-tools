@@ -17,7 +17,7 @@ import { ComputeBudgetProgram, TransactionMessage, VersionedTransaction } from '
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { Element, useElementsInfoStore } from '../../app/stores/shopElements';
-import { buildBuyElementTransaction } from '../../lib/buyElementsIx';
+import { buildBuyElementIx } from '../../lib/buyElementsIx';
 import { FEES } from '../../lib/constants/elements';
 import { asyncSleep } from '../../lib/utils';
 import { COMPUTE_UNIT_LIMIT, TRANSACTION_FEE, levelUpWhitelist } from '../leveling';
@@ -97,11 +97,7 @@ export default function BuyElementsPage() {
             }),
         ];
         for (const element of elements) {
-            const ix = buildBuyElementTransaction(
-                publicKey!,
-                element.name.replaceAll(' ', ''),
-                new PublicKey(element.address)
-            );
+            const ix = buildBuyElementIx(publicKey!, element.name.replaceAll(' ', ''), new PublicKey(element.address));
             ixs.push(ix);
         }
 
