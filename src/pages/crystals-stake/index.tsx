@@ -377,7 +377,7 @@ export default function ClaimPage() {
             </Box>
 
             <Box sx={{ display: 'flex', gap: '.5rem', flexWrap: 1 }}>
-                <Button
+                {/* <Button
                     variant="contained"
                     disabled={_.isEmpty(stakedCrystals)}
                     onClick={async () => claimCrystals(50)}
@@ -390,7 +390,7 @@ export default function ClaimPage() {
                     onClick={async () => claimCrystals(100)}
                 >
                     Claim 100
-                </Button>
+                </Button> */}
 
                 <Button
                     variant="contained"
