@@ -60,16 +60,26 @@ export default function ClaimPage() {
         setStatus('Fetching staked crystals ...');
         const stakeProofs = await fetchNftStakeProofs(connection, publicKey.toString());
 
-        const nftMints = stakeProofs.map(([r]) => r.nftMint.toString());
-        const nfts = (
-            await helius.getAssetBatch({
-                displayOptions: {
-                    showCollectionMetadata: true,
-                    showUnverifiedCollections: false,
-                },
-                ids: nftMints,
-            })
-        ).filter((n) => !n.burnt);
+        if (stakeProofs.length > 1000) {
+            setStatus(`Fetching ${stakeProofs.length} crystals. This might take a minute ...`);
+        }
+
+        let nfts: DAS.GetAssetResponse[] = [];
+
+        for (const chunk of _.chunk(stakeProofs, 1000)) {
+            const nftMints = chunk.map(([r]) => r.nftMint.toString());
+            const _nfts = (
+                await helius.getAssetBatch({
+                    displayOptions: {
+                        showCollectionMetadata: true,
+                        showUnverifiedCollections: false,
+                    },
+                    ids: nftMints,
+                })
+            ).filter((n) => !n.burnt);
+
+            nfts = [...nfts, ..._nfts];
+        }
 
         const crystalsWithStakeProofs = [];
 
