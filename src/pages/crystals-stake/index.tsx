@@ -247,6 +247,8 @@ export default function ClaimPage() {
             return;
         }
 
+        setStatus('Building transactions ...');
+
         const txs: VersionedTransaction[] = [];
 
         let count = 0;
@@ -276,12 +278,13 @@ export default function ClaimPage() {
 
             txs.push(new VersionedTransaction(messageV0));
 
-            if (count >= amount) {
+            if (count > amount) {
                 break;
             }
             count++;
         }
 
+        setStatus('Waiting for wallet confirmation ...');
         const signedTxs = await signAllTransactions(txs);
         const signatures = [];
         for (const signedTx of signedTxs) {
@@ -308,6 +311,8 @@ export default function ClaimPage() {
             setStatus('Wallet does not provide required feature');
             return;
         }
+
+        setStatus('Building transactions ...');
 
         const txs: VersionedTransaction[] = [];
 
@@ -338,12 +343,13 @@ export default function ClaimPage() {
 
             txs.push(new VersionedTransaction(messageV0));
 
-            if (count >= amount) {
+            if (count > amount) {
                 break;
             }
             count++;
         }
 
+        setStatus('Waiting for wallet confirmation ...');
         const signedTxs = await signAllTransactions(txs);
         const signatures = [];
         for (const signedTx of signedTxs) {
