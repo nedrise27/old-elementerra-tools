@@ -242,133 +242,147 @@ export default function ClaimPage() {
     }
 
     async function unstakeCrystals(amount: number) {
-        if (!signAllTransactions) {
-            setStatus('Wallet does not provide required feature');
-            return;
-        }
+        try {
+            if (!signAllTransactions) {
+                setStatus('Wallet does not provide required feature');
+                return;
+            }
 
-        setStatus('Building transactions ...');
+            setStatus('Building transactions ...');
 
-        const txs: VersionedTransaction[] = [];
+            const txs: VersionedTransaction[] = [];
 
-        let count = 0;
-        for (const { crystal } of stakedCrystals) {
-            const ixs = [
-                ComputeBudgetProgram.setComputeUnitLimit({
-                    units: COMPUTE_UNIT_LIMIT,
-                }),
-                ComputeBudgetProgram.setComputeUnitPrice({
-                    microLamports: TRANSACTION_FEE,
-                }),
-            ];
-            const assetProof = await helius.getAssetProof({ id: crystal.id });
+            let count = 0;
+            for (const { crystal } of stakedCrystals) {
+                const ixs = [
+                    ComputeBudgetProgram.setComputeUnitLimit({
+                        units: COMPUTE_UNIT_LIMIT,
+                    }),
+                    ComputeBudgetProgram.setComputeUnitPrice({
+                        microLamports: TRANSACTION_FEE,
+                    }),
+                ];
+                const assetProof = await helius.getAssetProof({ id: crystal.id });
 
-            const ix = buildUnstakeCrystalIx(publicKey!, crystal, assetProof, crystalTreeAccount!);
-            ixs.push(ix);
+                const ix = buildUnstakeCrystalIx(publicKey!, crystal, assetProof, crystalTreeAccount!);
+                ixs.push(ix);
+
+                const {
+                    value: { blockhash },
+                } = await connection.getLatestBlockhashAndContext();
+
+                const messageV0 = new TransactionMessage({
+                    payerKey: publicKey!,
+                    recentBlockhash: blockhash,
+                    instructions: ixs,
+                }).compileToV0Message();
+
+                txs.push(new VersionedTransaction(messageV0));
+
+                if (count > amount) {
+                    break;
+                }
+                count++;
+            }
+
+            setStatus('Waiting for wallet confirmation ...');
+            const signedTxs = await signAllTransactions(txs);
+            const signatures = [];
+            for (const signedTx of signedTxs) {
+                const signature = await connection.sendTransaction(signedTx, { skipPreflight: true });
+                signatures.push(signature);
+            }
 
             const {
-                value: { blockhash },
+                value: { blockhash, lastValidBlockHeight },
             } = await connection.getLatestBlockhashAndContext();
 
-            const messageV0 = new TransactionMessage({
-                payerKey: publicKey!,
-                recentBlockhash: blockhash,
-                instructions: ixs,
-            }).compileToV0Message();
+            setStatus('Confirming all transactions ...');
+            await Promise.all(
+                signatures.map((signature) =>
+                    connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature })
+                )
+            );
 
-            txs.push(new VersionedTransaction(messageV0));
-
-            if (count > amount) {
-                break;
-            }
-            count++;
+            await asyncSleep(4000);
+            await refreshAll();
+            setStatus('');
+        } catch (err) {
+            console.error(err);
+            setStatus('');
         }
-
-        setStatus('Waiting for wallet confirmation ...');
-        const signedTxs = await signAllTransactions(txs);
-        const signatures = [];
-        for (const signedTx of signedTxs) {
-            const signature = await connection.sendTransaction(signedTx, { skipPreflight: true });
-            signatures.push(signature);
-        }
-
-        const {
-            value: { blockhash, lastValidBlockHeight },
-        } = await connection.getLatestBlockhashAndContext();
-
-        setStatus('Confirming all transactions ...');
-        await Promise.all(
-            signatures.map((signature) => connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature }))
-        );
-
-        await asyncSleep(4000);
-        await refreshAll();
-        setStatus('');
     }
 
     async function stakeCrystals(amount: number) {
-        if (!signAllTransactions) {
-            setStatus('Wallet does not provide required feature');
-            return;
-        }
+        try {
+            if (!signAllTransactions) {
+                setStatus('Wallet does not provide required feature');
+                return;
+            }
 
-        setStatus('Building transactions ...');
+            setStatus('Building transactions ...');
 
-        const txs: VersionedTransaction[] = [];
+            const txs: VersionedTransaction[] = [];
 
-        let count = 0;
-        for (const crystal of unstakedCrystals) {
-            const ixs = [
-                ComputeBudgetProgram.setComputeUnitLimit({
-                    units: COMPUTE_UNIT_LIMIT,
-                }),
-                ComputeBudgetProgram.setComputeUnitPrice({
-                    microLamports: TRANSACTION_FEE,
-                }),
-            ];
-            const assetProof = await helius.getAssetProof({ id: crystal.id });
+            let count = 0;
+            for (const crystal of unstakedCrystals) {
+                const ixs = [
+                    ComputeBudgetProgram.setComputeUnitLimit({
+                        units: COMPUTE_UNIT_LIMIT,
+                    }),
+                    ComputeBudgetProgram.setComputeUnitPrice({
+                        microLamports: TRANSACTION_FEE,
+                    }),
+                ];
+                const assetProof = await helius.getAssetProof({ id: crystal.id });
 
-            const ix = buildStakeCrystalIx(publicKey!, crystal, assetProof, crystalTreeAccount!);
-            ixs.push(ix);
+                const ix = buildStakeCrystalIx(publicKey!, crystal, assetProof, crystalTreeAccount!);
+                ixs.push(ix);
+
+                const {
+                    value: { blockhash },
+                } = await connection.getLatestBlockhashAndContext();
+
+                const messageV0 = new TransactionMessage({
+                    payerKey: publicKey!,
+                    recentBlockhash: blockhash,
+                    instructions: ixs,
+                }).compileToV0Message();
+
+                txs.push(new VersionedTransaction(messageV0));
+
+                if (count > amount) {
+                    break;
+                }
+                count++;
+            }
+
+            setStatus('Waiting for wallet confirmation ...');
+            const signedTxs = await signAllTransactions(txs);
+            const signatures = [];
+            for (const signedTx of signedTxs) {
+                const signature = await connection.sendTransaction(signedTx, { skipPreflight: true });
+                signatures.push(signature);
+            }
 
             const {
-                value: { blockhash },
+                value: { blockhash, lastValidBlockHeight },
             } = await connection.getLatestBlockhashAndContext();
 
-            const messageV0 = new TransactionMessage({
-                payerKey: publicKey!,
-                recentBlockhash: blockhash,
-                instructions: ixs,
-            }).compileToV0Message();
+            setStatus('Confirming all transactions ...');
+            await Promise.all(
+                signatures.map((signature) =>
+                    connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature })
+                )
+            );
 
-            txs.push(new VersionedTransaction(messageV0));
-
-            if (count > amount) {
-                break;
-            }
-            count++;
+            await asyncSleep(4000);
+            await refreshAll();
+            setStatus('');
+        } catch (err) {
+            console.error(err);
+            setStatus('');
         }
-
-        setStatus('Waiting for wallet confirmation ...');
-        const signedTxs = await signAllTransactions(txs);
-        const signatures = [];
-        for (const signedTx of signedTxs) {
-            const signature = await connection.sendTransaction(signedTx, { skipPreflight: true });
-            signatures.push(signature);
-        }
-
-        const {
-            value: { blockhash, lastValidBlockHeight },
-        } = await connection.getLatestBlockhashAndContext();
-
-        setStatus('Confirming all transactions ...');
-        await Promise.all(
-            signatures.map((signature) => connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature }))
-        );
-
-        await asyncSleep(4000);
-        await refreshAll();
-        setStatus('');
     }
 
     return (
