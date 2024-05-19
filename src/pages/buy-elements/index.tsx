@@ -20,7 +20,8 @@ import { Element, useElementsInfoStore } from '../../app/stores/shopElements';
 import { buildBuyElementIx } from '../../lib/buyElementsIx';
 import { FEES } from '../../lib/constants/elements';
 import { asyncSleep } from '../../lib/utils';
-import { COMPUTE_UNIT_LIMIT, TRANSACTION_FEE, levelUpWhitelist } from '../leveling';
+import { COMPUTE_UNIT_LIMIT, levelUpWhitelist } from '../leveling';
+import { useConfigStore } from '../../app/stores/config';
 
 export const ELEMENTS_TO_BUY_CHUNK = 4;
 
@@ -33,6 +34,7 @@ export default function BuyElementsPage() {
     const { connection } = useConnection();
 
     const { publicKey, sendTransaction, connecting, connected, disconnecting } = useWallet();
+    const txFees = useConfigStore((state) => state.txFees)
 
     const elements = useElementsInfoStore((state) => state.elements);
     const refetchElements = useElementsInfoStore((state) => state.fetch);
@@ -93,7 +95,7 @@ export default function BuyElementsPage() {
                 units: COMPUTE_UNIT_LIMIT,
             }),
             ComputeBudgetProgram.setComputeUnitPrice({
-                microLamports: TRANSACTION_FEE,
+                microLamports: txFees,
             }),
         ];
         for (const element of elements) {

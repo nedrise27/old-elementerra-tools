@@ -23,9 +23,9 @@ import {
     ELEMENTERRA_PROGRAM_ID,
     ELEMENTERRA_RABBITS_COLLECTION,
 } from '../_app';
+import { useConfigStore } from '../../app/stores/config';
 
 export const COMPUTE_UNIT_LIMIT = 1000000;
-export const TRANSACTION_FEE = 50000;
 
 type RabbitWithLevel = {
     rabbit: DAS.GetAssetResponse;
@@ -47,6 +47,7 @@ export default function LevelingPage() {
 
     const elements = useElementsInfoStore((state) => state.elements);
     const refetchElements = useElementsInfoStore((state) => state.fetch);
+    const txFees = useConfigStore((state) => state.txFees);
 
     const [rabbitsWithLevel, setRabbitsWithLevel] = useState<RabbitWithLevel[]>([]);
 
@@ -309,7 +310,7 @@ export default function LevelingPage() {
                         units: COMPUTE_UNIT_LIMIT,
                     }),
                     ComputeBudgetProgram.setComputeUnitPrice({
-                        microLamports: TRANSACTION_FEE,
+                        microLamports: txFees,
                     }),
                     ix,
                 ],

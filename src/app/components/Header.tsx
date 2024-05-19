@@ -1,4 +1,4 @@
-import { AppBar, Box } from '@mui/material';
+import { AppBar, Box, TextField } from '@mui/material';
 import _ from 'lodash';
 import Link from 'next/link';
 
@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import styles from '../../styles/Header.module.css';
 import { useEleSolPriceStore, useEleUsdcPriceStore, useRabbitPriceStore } from '../stores/prices';
 import { WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useConfigStore } from '../stores/config';
 
 export function Header() {
     const eleSolPrice = useEleSolPriceStore((state) => state.price);
@@ -14,6 +15,20 @@ export function Header() {
     const refreshEleUsdcPrice = useEleUsdcPriceStore((state) => state.fetch);
     const rabbitBasePrice = useRabbitPriceStore((state) => state.price);
     const fetchRabbitBasePrice = useRabbitPriceStore((state) => state.fetch);
+
+    const txFees = useConfigStore((state) => state.txFees);
+    const updateTxFees = useConfigStore((state) => state.updateTxFees);
+
+    function handleUpdateTransactionFees(fees: string) {
+        try {
+            const newFees = parseInt(fees, 10);
+            if (newFees) {
+                updateTxFees(newFees);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
     useEffect(() => {
         refreshEleSolPrice();
@@ -34,14 +49,17 @@ export function Header() {
                     <Link href={'/leveling'}>Level Up</Link>
                     <Link href={'/buy-elements'}>Buy Elements</Link>
                     <Link href={'/crystals-stake'}>Crystals Stake</Link>
+                </nav>
+                <div className={styles.Navigation}>
                     <WalletMultiButton />
                     <WalletDisconnectButton />
-                </nav>
-
-                <div className={styles.HeaderInfo}>
-                    <p>Rabbit FP: {_.round(rabbitBasePrice || 0, 2).toFixed(2)} SOL</p>
-                    <p>ELE/SOL: {_.round(eleSolPrice || 0, 8).toFixed(10)} SOL</p>
-                    <p>ELE/USDC: {_.round(eleUsdcPrice || 0, 8).toFixed(8)} USDC</p>
+                    <TextField
+                        sx={{ maxWidth: '10rem' }}
+                        type="number"
+                        label="Tx fee in lamports"
+                        value={txFees}
+                        onChange={(event) => handleUpdateTransactionFees(event.target.value)}
+                    />
                 </div>
             </AppBar>
         </>

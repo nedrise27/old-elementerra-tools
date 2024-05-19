@@ -20,12 +20,6 @@ import {
 import { PROGRAM_ID } from './elementerra-program/programId';
 import * as types from './elementerra-program/types';
 
-export function getCrystalTier(tier: number): types.CrystalTierKind {
-    return types.CrystalTier.fromJSON({
-        kind: `Tier${tier}`,
-    } as types.CrystalTierJSON);
-}
-
 export function getEscrowCNFTPDA(nftId: string): PublicKey {
     const [pda] = PublicKey.findProgramAddressSync(
         [Buffer.from(`escrow_crystal`), new PublicKey(nftId).toBytes()],
@@ -38,14 +32,9 @@ export function buildStakeCrystalIx(
     payer: PublicKey,
     nft: DAS.GetAssetResponse,
     assetProof: DAS.GetAssetProofResponse,
-    treeAccount: ConcurrentMerkleTreeAccount
+    treeAccount: ConcurrentMerkleTreeAccount,
+    crystalTier: types.CrystalTierKind
 ) {
-    const tier = nft.content?.metadata.attributes?.find((a) => a.trait_type === 'level')?.value;
-    if (!tier) {
-        console.log(nft);
-        throw new Error('Could not get level');
-    }
-
     const { creator_hash, data_hash, leaf_id } = nft.compression!;
 
     const canopyDepth = treeAccount.getCanopyDepth();
@@ -59,7 +48,7 @@ export function buildStakeCrystalIx(
 
     return stakeCnft(
         {
-            crystalTier: getCrystalTier(parseInt(tier!, 10)),
+            crystalTier,
             creatorHash: [...new PublicKey(creator_hash.trim()).toBytes()],
             dataHash: [...new PublicKey(data_hash.trim()).toBytes()],
             root: [...new PublicKey(assetProof.root.trim()).toBytes()],

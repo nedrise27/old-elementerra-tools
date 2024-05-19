@@ -3,7 +3,6 @@ import { PublicKey, TransactionInstruction } from '@solana/web3.js';
 import BN from 'bn.js';
 import { DAS } from 'helius-sdk';
 import { getElementumTokenAddress } from './buildLevelUpIx';
-import { getCrystalTier } from './buildUnstakeCrystalIx';
 import {
     CRYSTAL_MERKLE_TREE,
     CRYSTAL_STAKING_POOL,
@@ -13,19 +12,19 @@ import {
     SYSTEM_PROGRAM,
 } from './constants';
 import { claimCnft } from './elementerra-program/instructions';
+import { CrystalTierKind } from './elementerra-program/types';
 
 export function buildClaimCrystalInstruction(
     pubkey: PublicKey,
     crystal: DAS.GetAssetResponse,
     stakeProofAddress: PublicKey,
     dataHash: PublicKey,
-    leafId: number
+    leafId: number,
+    crystalTier: CrystalTierKind
 ): TransactionInstruction {
-    const tier = crystal.content?.metadata.attributes?.find((a) => a.trait_type === 'level')?.value;
-
     return claimCnft(
         {
-            crystalTier: getCrystalTier(parseInt(tier!, 10)),
+            crystalTier,
             dataHash: [...dataHash.toBytes()],
             nonce: new BN(leafId),
         },

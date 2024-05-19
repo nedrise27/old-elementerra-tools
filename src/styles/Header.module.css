@@ -6,7 +6,7 @@
 
 .Navigation {
     width: 100%;
-    min-height: 32px;
+    min-height: 28px;
     padding: 1rem 2rem;
     display: flex;
     justify-content: end;

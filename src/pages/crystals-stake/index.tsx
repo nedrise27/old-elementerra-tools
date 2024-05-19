@@ -14,7 +14,9 @@ import { NftStakeProof } from '../../lib/elementerra-program/accounts';
 import { asyncSleep } from '../../lib/utils';
 import { fetchNftStakeProofs } from '../../lib/utils/stake';
 import { ELEMENTERRA_CRYSTALS_COLLECTION, ELEMENTERRA_CRYSTALS_COLLECTION2 } from '../_app';
-import { COMPUTE_UNIT_LIMIT, TRANSACTION_FEE, levelUpWhitelist } from '../leveling';
+import { COMPUTE_UNIT_LIMIT, levelUpWhitelist } from '../leveling';
+import { CrystalTierKind, CrystalTier, CrystalTierJSON } from '../../lib/elementerra-program/types';
+import { useConfigStore } from '../../app/stores/config';
 
 type CrystalWithStakeProof = {
     crystal: DAS.GetAssetResponse;
@@ -24,10 +26,21 @@ type CrystalWithStakeProof = {
 
 const CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK = 5;
 
+export function getCrystalTier(crystal: DAS.GetAssetResponse): CrystalTierKind | undefined {
+    const tier = crystal.content?.metadata.attributes?.find((a) => a.trait_type === 'level')?.value;
+    if (tier) {
+        return CrystalTier.fromJSON({
+            kind: `Tier${tier}`,
+        } as CrystalTierJSON);
+    }
+}
+
 export default function ClaimPage() {
     const { connection } = useConnection();
     const helius = new RpcClient(connection, 'elementerra-tools');
     const { publicKey, signAllTransactions, sendTransaction, connecting, connected, disconnecting } = useWallet();
+
+    const txFees = useConfigStore((state) => state.txFees);
 
     const [stakedCrystals, setStakedCrystals] = useState<CrystalWithStakeProof[]>([]);
     const [unstakedCrystals, setUnstakedCrystals] = useState<DAS.GetAssetResponse[]>([]);
@@ -158,87 +171,101 @@ export default function ClaimPage() {
     }, [publicKey, connected, connecting, disconnecting]);
 
     async function claimCrystals(amount: number) {
-        if (!signAllTransactions) {
-            setStatus('Wallet does not provide required feature');
-            return;
-        }
-        const now = _.toInteger(new Date().getTime() / 1000);
-
-        const crystalsToClaim = _.cloneDeep(stakedCrystals).filter(
-            ({ stakeProof }) => now - stakeProof.lastClaimed.toNumber() > 60 * 60
-        );
-
-        const txs: VersionedTransaction[] = [];
-
-        let count = 0;
-        for (const chunk of _.chunk(crystalsToClaim, CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK)) {
-            const tx = await buildClaimMultipleCrystalsTransaction(chunk);
-            txs.push(tx);
-
-            if (count >= amount) {
-                break;
+        try {
+            if (!signAllTransactions) {
+                setStatus('Wallet does not provide required feature');
+                return;
             }
-            count++;
-        }
 
-        const signedTxs = await signAllTransactions(txs);
-        const signatures = [];
-        for (const signedTx of signedTxs) {
-            const signature = await connection.sendTransaction(signedTx, { skipPreflight: true });
-            signatures.push(signature);
-        }
+            const now = _.toInteger(new Date().getTime() / 1000);
 
-        const {
-            value: { blockhash, lastValidBlockHeight },
-        } = await connection.getLatestBlockhashAndContext();
+            const crystalsToClaim = _.cloneDeep(stakedCrystals).filter(
+                ({ stakeProof }) => now - stakeProof.lastClaimed.toNumber() > 60 * 60
+            );
 
-        setStatus('Confirming all transactions ...');
-        await Promise.all(
-            signatures.map((signature) => connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature }))
-        );
+            const txs: VersionedTransaction[] = [];
+            let count = 1;
+            for (const chunk of _.chunk(crystalsToClaim, CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK)) {
+                setStatus(`Building transactions ${count}/${amount}`);
 
-        await asyncSleep(4000);
-        await refreshAll();
-        setStatus('');
-    }
+                const ixs = [
+                    ComputeBudgetProgram.setComputeUnitLimit({
+                        units: COMPUTE_UNIT_LIMIT,
+                    }),
+                    ComputeBudgetProgram.setComputeUnitPrice({
+                        microLamports: txFees,
+                    }),
+                ];
 
-    async function buildClaimMultipleCrystalsTransaction(crystalsWithStakeProofs: CrystalWithStakeProof[]) {
-        setStatus('Building transactions');
+                for (const { crystal, stakeProofAddress } of chunk) {
+                    if (crystal.compression) {
+                        const { data_hash, leaf_id } = crystal.compression;
+                        let dataHash;
+                        try {
+                            dataHash = new PublicKey(data_hash);
+                        } catch (err) {
+                            continue;
+                        }
+                        const crystalTier = getCrystalTier(crystal);
+                        if (!crystalTier) {
+                            continue;
+                        }
 
-        const ixs = [
-            ComputeBudgetProgram.setComputeUnitLimit({
-                units: COMPUTE_UNIT_LIMIT,
-            }),
-            ComputeBudgetProgram.setComputeUnitPrice({
-                microLamports: TRANSACTION_FEE,
-            }),
-        ];
+                        const ix = buildClaimCrystalInstruction(
+                            publicKey!,
+                            crystal,
+                            stakeProofAddress,
+                            dataHash,
+                            leaf_id,
+                            crystalTier
+                        );
+                        ixs.push(ix);
+                    }
+                }
 
-        for (const { crystal, stakeProofAddress } of crystalsWithStakeProofs) {
-            if (crystal.compression) {
-                const { data_hash, leaf_id } = crystal.compression;
-                const ix = buildClaimCrystalInstruction(
-                    publicKey!,
-                    crystal,
-                    stakeProofAddress,
-                    new PublicKey(data_hash),
-                    leaf_id
-                );
-                ixs.push(ix);
+                const {
+                    value: { blockhash },
+                } = await connection.getLatestBlockhashAndContext();
+
+                const messageV0 = new TransactionMessage({
+                    payerKey: publicKey!,
+                    recentBlockhash: blockhash,
+                    instructions: ixs,
+                }).compileToV0Message();
+
+                txs.push(new VersionedTransaction(messageV0));
+
+                if (count >= amount) {
+                    break;
+                }
+                count++;
             }
+
+            const signedTxs = await signAllTransactions(txs);
+            const signatures = [];
+            for (const signedTx of signedTxs) {
+                const signature = await connection.sendTransaction(signedTx, { skipPreflight: true });
+                signatures.push(signature);
+            }
+
+            const {
+                value: { blockhash, lastValidBlockHeight },
+            } = await connection.getLatestBlockhashAndContext();
+
+            setStatus('Confirming all transactions ...');
+            await Promise.all(
+                signatures.map((signature) =>
+                    connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature })
+                )
+            );
+
+            await asyncSleep(4000);
+            await refreshAll();
+            setStatus('');
+        } catch (err) {
+            console.error(err);
+            setStatus('');
         }
-
-        const {
-            value: { blockhash },
-        } = await connection.getLatestBlockhashAndContext();
-
-        const messageV0 = new TransactionMessage({
-            payerKey: publicKey!,
-            recentBlockhash: blockhash,
-            instructions: ixs,
-        }).compileToV0Message();
-
-        return new VersionedTransaction(messageV0);
     }
 
     async function unstakeCrystals(amount: number) {
@@ -248,23 +275,25 @@ export default function ClaimPage() {
                 return;
             }
 
-            setStatus('Building transactions ...');
-
             const txs: VersionedTransaction[] = [];
-
-            let count = 0;
+            let count = 1;
             for (const { crystal } of stakedCrystals) {
+                setStatus(`Building transactions ${count}/${amount}`);
                 const ixs = [
                     ComputeBudgetProgram.setComputeUnitLimit({
                         units: COMPUTE_UNIT_LIMIT,
                     }),
                     ComputeBudgetProgram.setComputeUnitPrice({
-                        microLamports: TRANSACTION_FEE,
+                        microLamports: txFees,
                     }),
                 ];
                 const assetProof = await helius.getAssetProof({ id: crystal.id });
 
-                const ix = buildUnstakeCrystalIx(publicKey!, crystal, assetProof, crystalTreeAccount!);
+                const crystalTier = getCrystalTier(crystal);
+                if (!crystalTier) {
+                    continue;
+                }
+                const ix = buildUnstakeCrystalIx(publicKey!, crystal, assetProof, crystalTreeAccount!, crystalTier);
                 ixs.push(ix);
 
                 const {
@@ -279,7 +308,7 @@ export default function ClaimPage() {
 
                 txs.push(new VersionedTransaction(messageV0));
 
-                if (count > amount) {
+                if (count >= amount) {
                     break;
                 }
                 count++;
@@ -320,23 +349,24 @@ export default function ClaimPage() {
                 return;
             }
 
-            setStatus('Building transactions ...');
-
             const txs: VersionedTransaction[] = [];
-
-            let count = 0;
+            let count = 1;
             for (const crystal of unstakedCrystals) {
+                setStatus(`Building transactions ${count}/${amount}`);
                 const ixs = [
                     ComputeBudgetProgram.setComputeUnitLimit({
                         units: COMPUTE_UNIT_LIMIT,
                     }),
                     ComputeBudgetProgram.setComputeUnitPrice({
-                        microLamports: TRANSACTION_FEE,
+                        microLamports: txFees,
                     }),
                 ];
                 const assetProof = await helius.getAssetProof({ id: crystal.id });
-
-                const ix = buildStakeCrystalIx(publicKey!, crystal, assetProof, crystalTreeAccount!);
+                const crystalTier = getCrystalTier(crystal);
+                if (!crystalTier) {
+                    continue;
+                }
+                const ix = buildStakeCrystalIx(publicKey!, crystal, assetProof, crystalTreeAccount!, crystalTier);
                 ixs.push(ix);
 
                 const {
@@ -351,7 +381,7 @@ export default function ClaimPage() {
 
                 txs.push(new VersionedTransaction(messageV0));
 
-                if (count > amount) {
+                if (count >= amount) {
                     break;
                 }
                 count++;
@@ -397,7 +427,7 @@ export default function ClaimPage() {
             </Box>
 
             <Box sx={{ display: 'flex', gap: '.5rem', flexWrap: 1 }}>
-                {/* <Button
+                <Button
                     variant="contained"
                     disabled={_.isEmpty(stakedCrystals)}
                     onClick={async () => claimCrystals(50)}
@@ -410,7 +440,7 @@ export default function ClaimPage() {
                     onClick={async () => claimCrystals(100)}
                 >
                     Claim 100
-                </Button> */}
+                </Button>
 
                 <Button
                     variant="contained"
