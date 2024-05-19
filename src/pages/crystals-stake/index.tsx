@@ -44,6 +44,7 @@ export default function ClaimPage() {
 
     const [stakedCrystals, setStakedCrystals] = useState<CrystalWithStakeProof[]>([]);
     const [unstakedCrystals, setUnstakedCrystals] = useState<DAS.GetAssetResponse[]>([]);
+    const [unclaimedCrystals, setUnclaimedCrystals] = useState<CrystalWithStakeProof[]>([]);
 
     const [crystalTreeAccount, setCrystalTreeAccount] = useState<ConcurrentMerkleTreeAccount>();
 
@@ -72,6 +73,8 @@ export default function ClaimPage() {
 
         const crystalsWithStakeProofs = [];
 
+        const now = _.toInteger(new Date().getTime() / 1000);
+
         for (const crystal of nfts) {
             const [stakeProof, stakeProofAddress] = stakeProofs.find(([s]) => s.nftMint.toString() === crystal.id)!;
 
@@ -84,6 +87,11 @@ export default function ClaimPage() {
 
         setStatus('');
         setStakedCrystals(crystalsWithStakeProofs);
+        setUnclaimedCrystals(
+            _.cloneDeep(crystalsWithStakeProofs).filter(
+                ({ stakeProof }) => now - stakeProof.lastClaimed.toNumber() > 60 * 60
+            )
+        );
     }
 
     async function fetchUnstakedCrystals() {
@@ -177,15 +185,9 @@ export default function ClaimPage() {
                 return;
             }
 
-            const now = _.toInteger(new Date().getTime() / 1000);
-
-            const crystalsToClaim = _.cloneDeep(stakedCrystals).filter(
-                ({ stakeProof }) => now - stakeProof.lastClaimed.toNumber() > 60 * 60
-            );
-
             const txs: VersionedTransaction[] = [];
             let count = 1;
-            for (const chunk of _.chunk(crystalsToClaim, CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK)) {
+            for (const chunk of _.chunk(unclaimedCrystals, CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK)) {
                 setStatus(`Building transactions ${count}/${amount}`);
 
                 const ixs = [
@@ -420,7 +422,9 @@ export default function ClaimPage() {
             <h1>Crystals: claim, stake and unstake</h1>
             <Box sx={{ display: 'flex', gap: '4rem', marginBottom: '2rem' }}>
                 <p>Staked Crystals: {stakedCrystals.length}</p>
+                <p>Unclaimed Crystals: {unclaimedCrystals.length}</p>
                 <p>Unstaked Crystals: {unstakedCrystals.length}</p>
+
                 <Button variant="outlined" onClick={refreshAll}>
                     refresh
                 </Button>
@@ -429,17 +433,17 @@ export default function ClaimPage() {
             <Box sx={{ display: 'flex', gap: '.5rem', flexWrap: 1 }}>
                 <Button
                     variant="contained"
-                    disabled={_.isEmpty(stakedCrystals)}
+                    disabled={_.isEmpty(unclaimedCrystals)}
                     onClick={async () => claimCrystals(50)}
                 >
-                    Claim 50
+                    Claim {50 * CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK}
                 </Button>
                 <Button
                     variant="contained"
-                    disabled={_.isEmpty(stakedCrystals)}
+                    disabled={_.isEmpty(unclaimedCrystals)}
                     onClick={async () => claimCrystals(100)}
                 >
-                    Claim 100
+                    Claim {100 * CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK}
                 </Button>
 
                 <Button
