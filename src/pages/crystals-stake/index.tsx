@@ -78,11 +78,18 @@ export default function ClaimPage() {
         for (const crystal of nfts) {
             const [stakeProof, stakeProofAddress] = stakeProofs.find(([s]) => s.nftMint.toString() === crystal.id)!;
 
-            crystalsWithStakeProofs.push({
-                crystal,
-                stakeProof,
-                stakeProofAddress,
-            });
+            const collection = crystal.grouping?.find(({ group_key }) => group_key === 'collection')?.group_value;
+
+            if (
+                !_.isNil(collection) &&
+                [ELEMENTERRA_CRYSTALS_COLLECTION, ELEMENTERRA_CRYSTALS_COLLECTION2].includes(collection)
+            ) {
+                crystalsWithStakeProofs.push({
+                    crystal,
+                    stakeProof,
+                    stakeProofAddress,
+                });
+            }
         }
 
         setStatus('');
