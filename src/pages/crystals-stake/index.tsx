@@ -400,14 +400,14 @@ export default function ClaimPage() {
 
                 <Button
                     variant="contained"
-                    disabled={_.isEmpty(unstakedCrystals)}
+                    disabled={_.isEmpty(unstakedCrystals) || !_.isEmpty(status)}
                     onClick={async () => stakeCrystals(50)}
                 >
                     Stake 50
                 </Button>
                 <Button
                     variant="contained"
-                    disabled={_.isEmpty(unstakedCrystals)}
+                    disabled={_.isEmpty(unstakedCrystals) || !_.isEmpty(status)}
                     onClick={async () => stakeCrystals(100)}
                 >
                     Stake 100
@@ -415,14 +415,14 @@ export default function ClaimPage() {
 
                 <Button
                     variant="contained"
-                    disabled={_.isEmpty(stakedCrystals)}
+                    disabled={_.isEmpty(stakedCrystals) || !_.isEmpty(status)}
                     onClick={async () => unstakeCrystals(50)}
                 >
                     Unstake 50
                 </Button>
                 <Button
                     variant="contained"
-                    disabled={_.isEmpty(stakedCrystals)}
+                    disabled={_.isEmpty(stakedCrystals) || !_.isEmpty(status)}
                     onClick={async () => unstakeCrystals(100)}
                 >
                     Unstake 100
