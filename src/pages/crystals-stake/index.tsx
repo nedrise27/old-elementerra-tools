@@ -438,9 +438,9 @@ export default function ClaimPage() {
         <Container maxWidth="lg">
             <h1>Crystals: claim, stake and unstake</h1>
             <Box sx={{ display: 'flex', gap: '4rem', marginBottom: '2rem' }}>
-                <p>Staked Crystals: {stakedCrystals.length}</p>
                 <p>Unclaimed Crystals: {unclaimedCrystals.length}</p>
                 <p>Unstaked Crystals: {unstakedCrystals.length}</p>
+                <p>Staked Crystals: {stakedCrystals.length}</p>
 
                 <Button variant="outlined" onClick={refreshAll}>
                     refresh
