@@ -221,6 +221,32 @@ export default function LevelingPage() {
         return rabbitsWithLevel.find(({ rabbit }) => rabbit.id === selectedRabbitId)?.rabbit;
     }
 
+    async function fetchProof(id: string) {
+        try {
+            const res = helius.getAssetProof({ id });
+            if (res) {
+                return res;
+            }
+            throw new Error();
+        } catch (err) {
+            await asyncSleep(500);
+            return fetchProof(id);
+        }
+    }
+
+    async function fetchTreeAccount(treeId: string) {
+        try {
+            const treeAccount = await ConcurrentMerkleTreeAccount.fromAccountAddress(connection, new PublicKey(treeId));
+            if (treeAccount) {
+                return treeAccount;
+            }
+            throw new Error();
+        } catch (err) {
+            await asyncSleep(500);
+            return fetchTreeAccount(treeId);
+        }
+    }
+
     async function levelUp() {
         while (true) {
             setStatus('Refreshing wallet ...');
@@ -277,12 +303,9 @@ export default function LevelingPage() {
                 return;
             }
 
-            const proof = await helius.getAssetProof({ id: foundElementToBurn.id });
+            const proof = await fetchProof(foundElementToBurn.id);
 
-            const treeAccount = await ConcurrentMerkleTreeAccount.fromAccountAddress(
-                connection,
-                new PublicKey(proof.tree_id)
-            );
+            const treeAccount = await fetchTreeAccount(proof.tree_id);
 
             const [metadataAddress] = findMetadataPda(umi, { mint: toPublicKey(selectedRabbit()!.id) });
 
