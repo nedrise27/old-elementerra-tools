@@ -451,9 +451,9 @@ export default function ClaimPage() {
                 <Button
                     variant="contained"
                     disabled={_.isEmpty(unclaimedCrystals)}
-                    onClick={async () => claimCrystals(25)}
+                    onClick={async () => claimCrystals(20)}
                 >
-                    Claim {30 * CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK}
+                    Claim {20 * CRYSTALS_TO_CLAIM_INSTRUCTIONS_CHUNK}
                 </Button>
                 <Button
                     variant="contained"
