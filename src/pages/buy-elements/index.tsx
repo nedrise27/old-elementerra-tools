@@ -22,6 +22,7 @@ import { FEES } from '../../lib/constants/elements';
 import { asyncSleep } from '../../lib/utils';
 import { COMPUTE_UNIT_LIMIT, levelUpWhitelist } from '../leveling';
 import { useConfigStore } from '../../app/stores/config';
+import { RAW_RABBIT_LEVEL_INFO } from '../../lib/constants';
 
 export const ELEMENTS_TO_BUY_CHUNK = 4;
 
@@ -34,7 +35,7 @@ export default function BuyElementsPage() {
     const { connection } = useConnection();
 
     const { publicKey, sendTransaction, connecting, connected, disconnecting } = useWallet();
-    const txFees = useConfigStore((state) => state.txFees)
+    const txFees = useConfigStore((state) => state.txFees);
 
     const elements = useElementsInfoStore((state) => state.elements);
     const refetchElements = useElementsInfoStore((state) => state.fetch);
@@ -63,11 +64,10 @@ export default function BuyElementsPage() {
     }, [publicKey, connected, connecting, disconnecting]);
 
     function getAllElements() {
-        return _.orderBy(
-            elements.filter((e) => e.tier < 7),
-            ['tier'],
-            ['asc']
-        ).map((e) => ({ element: e, amount: 0 }));
+        const levelElements = RAW_RABBIT_LEVEL_INFO.map((e) => e.elementToBurn).filter((e) => !_.isNil(e));
+        const els = elements.filter((e) => e.tier < 7);
+        els.sort((a, b) => levelElements.indexOf(a.name.toLowerCase()) - levelElements.indexOf(b.name.toLowerCase()));
+        return els.map((e) => ({ element: e, amount: 0 }));
     }
 
     async function buyElements() {
