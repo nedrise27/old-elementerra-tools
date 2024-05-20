@@ -481,6 +481,13 @@ export default function ClaimPage() {
                 <Button
                     variant="contained"
                     disabled={_.isEmpty(stakedCrystals) || !_.isEmpty(status)}
+                    onClick={async () => unstakeCrystals(30)}
+                >
+                    Unstake 30
+                </Button>
+                <Button
+                    variant="contained"
+                    disabled={_.isEmpty(stakedCrystals) || !_.isEmpty(status)}
                     onClick={async () => unstakeCrystals(50)}
                 >
                     Unstake 50
