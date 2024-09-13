@@ -49,9 +49,6 @@ export default function CasingChests() {
     const elementsRecord = useElementsInfoStore((state) => state.elementsRecord);
     const fetchElements = useElementsInfoStore((state) => state.fetch);
 
-    const chestPrices = useChestPricesStore((state) => state.prices);
-    const fetchChestPrices = useChestPricesStore((state) => state.fetch);
-
     const [elementsStats, setElementsStats] = useState<ElementsStats[]>([]);
 
     const [chestsWeights, setChestsWeights] = useState(defaultChestsWeights);
@@ -102,7 +99,6 @@ export default function CasingChests() {
 
     useEffect(() => {
         fetchElements(connection);
-        fetchChestPrices();
     }, [connection]);
 
     function getReturnValue(chests: Record<number, number>): number {
@@ -154,9 +150,9 @@ export default function CasingChests() {
 
     async function handleChestWeightPrice() {
         const newChestsWeights: ChestWeight[] = [];
-        for (const [chestTier, weight] of Object.entries(chestPrices)) {
-            newChestsWeights.push({ chestTier: parseInt(chestTier, 10), weight: weight ? weight.toString() : '0' });
-        }
+        // for (const [chestTier, weight] of Object.entries(chestPrices)) {
+        //     newChestsWeights.push({ chestTier: parseInt(chestTier, 10), weight: weight ? weight.toString() : '0' });
+        // }
         if (!_.isEmpty(newChestsWeights)) {
             setChestsWeights(newChestsWeights);
         }
@@ -230,7 +226,7 @@ function ViewElementsStatsRow(props: ViewElementsStatsRowProps) {
             <TableCell>{props.stats.elementName}</TableCell>
             <TableCell>{viewChests(props.stats.chests)}</TableCell>
             <TableCell>{toFixedNoTralingZeroes(props.stats.returnValue, 8)}</TableCell>
-            <TableCell>{props.stats.cost.toFixed(0)}</TableCell>
+            <TableCell>{props.stats.cost?.toFixed(0)}</TableCell>
             <TableCell>{toFixedNoTralingZeroes(props.stats.costEffectiveness, 8)}</TableCell>
         </TableRow>
     );

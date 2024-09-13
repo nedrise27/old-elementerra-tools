@@ -39,6 +39,7 @@ export default function Page(params: Params) {
 
     const [element, setElement] = useState<Element>();
     const elementsRecord = useElementsInfoStore((state) => state.elementsRecord);
+    const baseElements = useElementsInfoStore((state) => state.baseElements);
     const refetchElements = useElementsInfoStore((state) => state.fetch);
     const [extendedRecipe, setExtendedRecipe] = useState<ExtendedRecipe[]>([]);
 
@@ -67,7 +68,7 @@ export default function Page(params: Params) {
             const el = elementsRecord[elementId];
             if (!_.isNil(el)) {
                 setElement(el);
-                setExtendedRecipe(getExtendedRecipe(el, elementsRecord));
+                setExtendedRecipe(getExtendedRecipe(baseElements, el, elementsRecord));
             }
         }
     }, [elementsRecord, searchParams]);

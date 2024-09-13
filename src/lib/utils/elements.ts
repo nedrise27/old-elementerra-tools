@@ -1,11 +1,10 @@
 import _ from 'lodash';
 
 import { ExtendedRecipe } from '../../pages/elements';
-import { BASE_ELEMENTS } from '../constants/elements';
 import { Element, PADDING_ADDRESS } from '../../app/stores/shopElements';
 
-function recipeOrSelf(nextTier: number, element: Element): string[] {
-    if (BASE_ELEMENTS.includes(element.address)) {
+function recipeOrSelf(baseElements: string[], nextTier: number, element: Element): string[] {
+    if (baseElements.includes(element.address)) {
         return [element.address];
     }
     if (element.tier < nextTier) {
@@ -14,16 +13,20 @@ function recipeOrSelf(nextTier: number, element: Element): string[] {
     return element.recipe.filter((e) => e !== PADDING_ADDRESS);
 }
 
-function allBaseElements(recipe: string[]): boolean {
+function allBaseElements(baseElements: string[], recipe: string[]): boolean {
     for (const address of recipe) {
-        if (!BASE_ELEMENTS.includes(address)) {
+        if (!baseElements.includes(address)) {
             return false;
         }
     }
     return true;
 }
 
-export function getExtendedRecipe(element: Element, elementsRecord: Record<string, Element>): ExtendedRecipe[] {
+export function getExtendedRecipe(
+    baseElements: string[],
+    element: Element,
+    elementsRecord: Record<string, Element>
+): ExtendedRecipe[] {
     const receipes: string[][] = [element.recipe];
     const extendedRecipes: ExtendedRecipe[] = [];
 
@@ -54,12 +57,12 @@ export function getExtendedRecipe(element: Element, elementsRecord: Record<strin
                 extendedNextLevel[elementName].amount += 1;
             }
 
-            nextLevel = [...nextLevel, ...recipeOrSelf(nextTier, extendedItem)];
+            nextLevel = [...nextLevel, ...recipeOrSelf(baseElements, nextTier, extendedItem)];
         }
 
         extendedRecipes.push(extendedNextLevel);
 
-        if (allBaseElements(lastRecipe)) {
+        if (allBaseElements(baseElements, lastRecipe)) {
             break;
         }
 
@@ -72,8 +75,6 @@ export function getExtendedRecipe(element: Element, elementsRecord: Record<strin
             break;
         }
     }
-
-    
 
     return extendedRecipes;
 }

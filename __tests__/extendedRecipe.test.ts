@@ -1463,7 +1463,7 @@ describe('getExtendedRecipe', () => {
     test('getExtendedRecipe T1', () => {
         const element: any = _.clone(elementsRecord['8B3cmtrNHzJi2z9HowdEuRowHoRXoVmpyMdytruDvJD5']);
 
-        const res = getExtendedRecipe(element, elementsRecord);
+        const res = getExtendedRecipe([], element, elementsRecord);
 
         const fullyExtended = _.last(res);
 
@@ -1475,7 +1475,7 @@ describe('getExtendedRecipe', () => {
     test('getExtendedRecipe T3', () => {
         const element: any = _.clone(elementsRecord['4apGySpNYbbGQDQdMk3LK7HcttuA5sxcTuHvdqKwS7CN']); // coral
 
-        const res = getExtendedRecipe(element, elementsRecord);
+        const res = getExtendedRecipe([], element, elementsRecord);
 
         const fullyExtended = _.last(res);
 

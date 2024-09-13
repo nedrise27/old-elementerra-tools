@@ -4,8 +4,9 @@ import _ from 'lodash';
 import { create } from 'zustand';
 import { encode as encodeb58 } from 'bs58';
 
-import { BASE_ELEMENTS_PRICES } from '../../lib/constants/elements';
+// import { BASE_ELEMENTS_PRICES } from '../../lib/constants/elements';
 import { ELEMENTERRA_PROGRAM_ID } from '../../pages/_app';
+import { Element as IdlElement } from '../../lib/elementerra-program/accounts';
 
 export const PADDING_ADDRESS = '11111111111111111111111111111111';
 
@@ -29,6 +30,7 @@ type ElementsInfoState = {
     elements: Element[];
     elementsRecord: Record<string, Element>;
     elementsRecordName: Record<string, Element>;
+    baseElements: string[];
     fetch: (connection: Connection) => Promise<void>;
 };
 
@@ -36,12 +38,13 @@ export const useElementsInfoStore = create<ElementsInfoState>((set) => ({
     elements: [],
     elementsRecord: {},
     elementsRecordName: {},
+    baseElements: [],
     fetch: async (connection: Connection) => {
         const assets = await connection.getProgramAccounts(new PublicKey(ELEMENTERRA_PROGRAM_ID), {
-            filters: [{ memcmp: { offset: 0, bytes: 'Qhcg1qqD1g9' } }],
+            filters: [{ memcmp: { offset: 0, bytes: 'Qhcg1qqD1g9' } }, { memcmp: { offset: 9, bytes: '3' } }],
         });
 
-        const prices = _.clone(BASE_ELEMENTS_PRICES);
+        const prices: Record<string, number> = {};
 
         function getPrice(address: string): number | undefined {
             const foundPrice = prices[address];
@@ -54,13 +57,17 @@ export const useElementsInfoStore = create<ElementsInfoState>((set) => ({
             .map((e) => {
                 const buf = e.account.data;
 
+                const element = IdlElement.decode(e.account.data);
+
                 const address = e.pubkey.toString();
 
                 // const unkonwn1Hex = buf.subarray(0, 10).toString('hex'); // 0 - 9
                 // const unkonwn2Hex = buf.subarray(10, 42).toString('hex'); // 10 - 41
 
                 const inventorAddress = encodeb58(buf.subarray(42, 42 + 32)); // 42 - 73
-                const invented = inventorAddress !== PADDING_ADDRESS || _.has(BASE_ELEMENTS_PRICES, address);
+                const invented = element.isDiscovered;
+
+                const price = element.cost.toNumber();
 
                 const tier = buf.subarray(74, 74 + 1).readInt8(0); // 74
 
@@ -96,33 +103,19 @@ export const useElementsInfoStore = create<ElementsInfoState>((set) => ({
                     invented,
                     tier,
                     recipe,
+                    price,
                     url,
                     forgedCount,
                     remaningCount,
                     chestsAvailable,
                 };
             })
-            .sort((a: Element, b: Element) => a.tier - b.tier)
-            .map((e: Element) => {
-                let price = 0;
-                const foundPrice = getPrice(e.address);
-                if (!_.isNil(foundPrice)) {
-                    price = foundPrice;
-                } else {
-                    price = _.sum(e.recipe.map((i) => getPrice(i)));
-                    prices[e.address] = price;
-                }
-
-                return {
-                    ...e,
-                    price,
-                };
-            });
-
+            .sort((a: Element, b: Element) => a.tier - b.tier);
         set({
             elementsRecord: Object.fromEntries(elements.map((e) => [e.address, e])),
             elementsRecordName: Object.fromEntries(elements.map((e) => [e.name.replace(' ', ''), e])),
             elements,
+            baseElements: elements.filter((e) => e.tier === 0).map((e) => e.address),
         });
     },
 }));

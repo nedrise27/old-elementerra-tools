@@ -33,6 +33,7 @@ export default function Elments() {
 
     const elements = useElementsInfoStore((state) => state.elements);
     const elementsRecord = useElementsInfoStore((state) => state.elementsRecord);
+    const baseElements = useElementsInfoStore((state) => state.baseElements);
     const refetchElements = useElementsInfoStore((state) => state.fetch);
 
     const [elementsDisplay, setElementsDisplay] = useState<Element[]>([]);
@@ -127,7 +128,7 @@ export default function Elments() {
 
         const element = elementsRecord[openedElementAddress];
 
-        const extendedRecipes = getExtendedRecipe(element, elementsRecord);
+        const extendedRecipes = getExtendedRecipe(baseElements, element, elementsRecord);
 
         setOpenedElementRecipe(extendedRecipes);
         setOpenedElement(elementsRecord[openedElementAddress]);
