@@ -59,7 +59,6 @@ export default function CommunityCraftingPage() {
     }, [wallets, walletLoadingState, elementsRecordName]);
 
     function handleSelectElementToForge(element: Element) {
-        console.log(element);
     }
 
     return (

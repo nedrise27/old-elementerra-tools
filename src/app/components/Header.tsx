@@ -4,18 +4,10 @@ import Link from 'next/link';
 
 import { useEffect } from 'react';
 import styles from '../../styles/Header.module.css';
-import { useEleSolPriceStore, useEleUsdcPriceStore, useRabbitPriceStore } from '../stores/prices';
 import { WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useConfigStore } from '../stores/config';
 
 export function Header() {
-    const eleSolPrice = useEleSolPriceStore((state) => state.price);
-    const refreshEleSolPrice = useEleSolPriceStore((state) => state.fetch);
-    const eleUsdcPrice = useEleUsdcPriceStore((state) => state.price);
-    const refreshEleUsdcPrice = useEleUsdcPriceStore((state) => state.fetch);
-    const rabbitBasePrice = useRabbitPriceStore((state) => state.price);
-    const fetchRabbitBasePrice = useRabbitPriceStore((state) => state.fetch);
-
     const txFees = useConfigStore((state) => state.txFees);
     const updateTxFees = useConfigStore((state) => state.updateTxFees);
 
@@ -29,12 +21,6 @@ export function Header() {
             console.error(err);
         }
     }
-
-    useEffect(() => {
-        refreshEleSolPrice();
-        refreshEleUsdcPrice();
-        fetchRabbitBasePrice();
-    }, [refreshEleSolPrice, refreshEleUsdcPrice]);
 
     return (
         <>

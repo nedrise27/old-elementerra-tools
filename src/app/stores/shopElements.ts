@@ -44,15 +44,6 @@ export const useElementsInfoStore = create<ElementsInfoState>((set) => ({
             filters: [{ memcmp: { offset: 0, bytes: 'Qhcg1qqD1g9' } }, { memcmp: { offset: 9, bytes: '3' } }],
         });
 
-        const prices: Record<string, number> = {};
-
-        function getPrice(address: string): number | undefined {
-            const foundPrice = prices[address];
-            if (!_.isNil(foundPrice)) {
-                return foundPrice;
-            }
-        }
-
         const elements: Element[] = assets
             .map((e) => {
                 const buf = e.account.data;
@@ -61,15 +52,12 @@ export const useElementsInfoStore = create<ElementsInfoState>((set) => ({
 
                 const address = e.pubkey.toString();
 
-                // const unkonwn1Hex = buf.subarray(0, 10).toString('hex'); // 0 - 9
-                // const unkonwn2Hex = buf.subarray(10, 42).toString('hex'); // 10 - 41
-
-                const inventorAddress = encodeb58(buf.subarray(42, 42 + 32)); // 42 - 73
-                const invented = element.isDiscovered;
+                const inventorAddress = element.inventor.toString();
 
                 const price = element.cost.toNumber();
 
-                const tier = buf.subarray(74, 74 + 1).readInt8(0); // 74
+                const tier = element.tier.discriminator; // 74
+                const invented = element.isDiscovered || tier === 0;
 
                 // const padding1 = buf.subarray(75, 75 + 1).toString('hex') // 75 - 76
                 const forgedCount = buf.subarray(76, 76 + 2).readInt16LE(); // 76 - 77
