@@ -18,6 +18,7 @@ export interface StakeElementerraAccounts {
   nftToken: PublicKey
   nftEdition: PublicKey
   nftTokenRecord: PublicKey
+  levelAttributes: PublicKey
   metaplexTokenMetadataProgram: PublicKey
   metaplexAuthRulesProgram: PublicKey
   authRules: PublicKey
@@ -49,6 +50,7 @@ export function stakeElementerra(
     { pubkey: accounts.nftToken, isSigner: false, isWritable: true },
     { pubkey: accounts.nftEdition, isSigner: false, isWritable: true },
     { pubkey: accounts.nftTokenRecord, isSigner: false, isWritable: true },
+    { pubkey: accounts.levelAttributes, isSigner: false, isWritable: true },
     {
       pubkey: accounts.metaplexTokenMetadataProgram,
       isSigner: false,

@@ -9,6 +9,8 @@ export interface NftStakeProofFields {
   authority: PublicKey
   nftMint: PublicKey
   lastClaimed: BN
+  stakedLevel: number
+  stakedLevelInitialized: boolean
 }
 
 export interface NftStakeProofJSON {
@@ -16,6 +18,8 @@ export interface NftStakeProofJSON {
   authority: string
   nftMint: string
   lastClaimed: string
+  stakedLevel: number
+  stakedLevelInitialized: boolean
 }
 
 /** PDA ["nft_staked_", nft mint pubkey] */
@@ -24,6 +28,8 @@ export class NftStakeProof {
   readonly authority: PublicKey
   readonly nftMint: PublicKey
   readonly lastClaimed: BN
+  readonly stakedLevel: number
+  readonly stakedLevelInitialized: boolean
 
   static readonly discriminator = Buffer.from([
     30, 244, 104, 134, 119, 107, 108, 92,
@@ -34,6 +40,8 @@ export class NftStakeProof {
     borsh.publicKey("authority"),
     borsh.publicKey("nftMint"),
     borsh.i64("lastClaimed"),
+    borsh.u16("stakedLevel"),
+    borsh.bool("stakedLevelInitialized"),
   ])
 
   constructor(fields: NftStakeProofFields) {
@@ -41,6 +49,8 @@ export class NftStakeProof {
     this.authority = fields.authority
     this.nftMint = fields.nftMint
     this.lastClaimed = fields.lastClaimed
+    this.stakedLevel = fields.stakedLevel
+    this.stakedLevelInitialized = fields.stakedLevelInitialized
   }
 
   static async fetch(
@@ -91,6 +101,8 @@ export class NftStakeProof {
       authority: dec.authority,
       nftMint: dec.nftMint,
       lastClaimed: dec.lastClaimed,
+      stakedLevel: dec.stakedLevel,
+      stakedLevelInitialized: dec.stakedLevelInitialized,
     })
   }
 
@@ -100,6 +112,8 @@ export class NftStakeProof {
       authority: this.authority.toString(),
       nftMint: this.nftMint.toString(),
       lastClaimed: this.lastClaimed.toString(),
+      stakedLevel: this.stakedLevel,
+      stakedLevelInitialized: this.stakedLevelInitialized,
     }
   }
 
@@ -109,6 +123,8 @@ export class NftStakeProof {
       authority: new PublicKey(obj.authority),
       nftMint: new PublicKey(obj.nftMint),
       lastClaimed: new BN(obj.lastClaimed),
+      stakedLevel: obj.stakedLevel,
+      stakedLevelInitialized: obj.stakedLevelInitialized,
     })
   }
 }
